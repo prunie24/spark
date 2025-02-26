@@ -197,20 +197,22 @@ header h1 {
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s;
+    width: 100%;
+    text-align: center;
 }
 
 .primary-btn:hover, .primary-btn:active {
     background-color: #0062cc;
 }
 
-/* Chart Container */
+/* Chart Container - Adjusted to include axis labels */
 .chart-container {
     margin: 16px;
     background: var(--card-background, #fff);
     border-radius: var(--border-radius, 12px);
     box-shadow: var(--card-shadow, 0 2px 8px rgba(0, 0, 0, 0.05));
-    padding: 16px;
-    height: 250px;
+    padding: 16px 16px 24px 16px; /* Added more bottom padding for x-axis labels */
+    height: 270px; /* Increased height to accommodate labels */
 }
 
 .chart-header {
@@ -218,9 +220,9 @@ header h1 {
 }
 
 .chart-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--primary-color, #007AFF);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-secondary, #86868b);
 }
 
 /* Stats Cards Grid - With proper spacing */
@@ -320,7 +322,7 @@ header h1 {
     color: var(--text-secondary);
 }
 
-/* Weight Section */
+/* Weight Screen */
 .weight-current {
     text-align: center;
     margin: 20px 0;
@@ -331,15 +333,20 @@ header h1 {
 }
 
 #current-weight {
-    font-size: 32px;
+    font-size: 40px;
     font-weight: 700;
     margin-right: 4px;
     color: var(--primary-color);
 }
 
 #weight-unit {
-    font-size: 18px;
+    font-size: 20px;
     color: var(--text-secondary);
+}
+
+/* Add Weight Button Spacing */
+#weight-screen .primary-btn {
+    margin-bottom: 24px;
 }
 
 /* Modals */
@@ -465,8 +472,8 @@ select:focus {
     }
     
     .chart-container {
-        height: 220px;
+        height: 240px;
         margin: 12px;
-        padding: 12px;
+        padding: 12px 12px 20px 12px;
     }
 }
