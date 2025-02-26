@@ -126,6 +126,13 @@ header h1 {
     color: var(--text-secondary);
 }
 
+/* Button Container */
+.button-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
 /* Tab Navigation */
 .tab-bar {
     display: flex;
@@ -191,14 +198,20 @@ header h1 {
     background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 12px 24px;
-    border-radius: 10px;
+    padding: 14px 40px;
+    border-radius: 24px;
     font-size: 16px;
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s;
-    width: 100%;
     text-align: center;
+    /* Not full width by default */
+    display: inline-block;
+}
+
+.primary-btn.full-width {
+    width: 100%;
+    display: block;
 }
 
 .primary-btn:hover, .primary-btn:active {
@@ -211,8 +224,8 @@ header h1 {
     background: var(--card-background, #fff);
     border-radius: var(--border-radius, 12px);
     box-shadow: var(--card-shadow, 0 2px 8px rgba(0, 0, 0, 0.05));
-    padding: 16px 16px 24px 16px; /* Added more bottom padding for x-axis labels */
-    height: 270px; /* Increased height to accommodate labels */
+    padding: 16px 16px 30px 16px; /* Even more bottom padding for x-axis labels */
+    height: 280px; /* Increased height to accommodate labels */
 }
 
 .chart-header {
@@ -345,7 +358,7 @@ header h1 {
 }
 
 /* Add Weight Button Spacing */
-#weight-screen .primary-btn {
+#weight-screen .button-container {
     margin-bottom: 24px;
 }
 
@@ -472,8 +485,8 @@ select:focus {
     }
     
     .chart-container {
-        height: 240px;
+        height: 280px;
         margin: 12px;
-        padding: 12px 12px 20px 12px;
+        padding: 12px 12px 30px 12px;
     }
 }

@@ -441,6 +441,11 @@ document.addEventListener('DOMContentLoaded', () => {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        bottom: 10 // Add padding to ensure labels are visible
+                    }
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -452,6 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             font: {
                                 weight: 'bold'
                             },
+                            padding: 5,
                             callback: function(value) {
                                 if (value === 0) return '0';
                                 if (value === 2000) return '2k';
@@ -471,7 +477,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         ticks: {
                             font: {
                                 weight: 'bold'
-                            }
+                            },
+                            padding: 5 // Add padding for x-axis labels
                         }
                     }
                 },
@@ -652,6 +659,11 @@ document.addEventListener('DOMContentLoaded', () => {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        bottom: 10 // Add padding to ensure labels are visible
+                    }
+                },
                 scales: {
                     y: {
                         beginAtZero: false,
@@ -662,7 +674,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         ticks: {
                             font: {
                                 weight: 'bold'
-                            }
+                            },
+                            padding: 5
                         }
                     },
                     x: {
@@ -672,7 +685,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         ticks: {
                             font: {
                                 weight: 'bold'
-                            }
+                            },
+                            padding: 5 // Add padding for x-axis labels
                         }
                     }
                 },

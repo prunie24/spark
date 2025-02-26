@@ -40,7 +40,9 @@
                     <span id="remaining-steps">10,000</span> steps to goal
                 </div>
                 
-                <button class="primary-btn" id="add-steps-btn">Add Steps</button>
+                <div class="button-container">
+                    <button class="primary-btn" id="add-steps-btn">Add Steps</button>
+                </div>
             </div>
         </div>
         
@@ -106,7 +108,9 @@
                 <canvas id="weight-chart"></canvas>
             </div>
             
-            <button class="primary-btn" id="add-weight-btn">Add Weight</button>
+            <div class="button-container">
+                <button class="primary-btn" id="add-weight-btn">Add Weight</button>
+            </div>
             
             <div class="history-list-header">Weight History</div>
             <div class="history-list" id="weight-history-list">
@@ -154,7 +158,7 @@
                 <div class="modal-body">
                     <label for="steps-input">Steps for today:</label>
                     <input type="number" id="steps-input" min="0" placeholder="Enter steps">
-                    <button class="primary-btn" id="save-steps-btn">Save</button>
+                    <button class="primary-btn full-width" id="save-steps-btn">Save</button>
                 </div>
             </div>
             
@@ -173,7 +177,7 @@
                             <option value="kg">kg</option>
                         </select>
                     </div>
-                    <button class="primary-btn" id="save-weight-btn">Save</button>
+                    <button class="primary-btn full-width" id="save-weight-btn">Save</button>
                 </div>
             </div>
             
@@ -191,7 +195,7 @@
                         <button class="preset-btn" data-value="10000">10k</button>
                         <button class="preset-btn" data-value="12000">12k</button>
                     </div>
-                    <button class="primary-btn" id="save-goal-btn">Save</button>
+                    <button class="primary-btn full-width" id="save-goal-btn">Save</button>
                 </div>
             </div>
         </div>
