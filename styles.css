@@ -398,30 +398,29 @@ select:focus {
     }
 }
 
-/* Updated Tab Navigation - Fixing mobile smooshing */
+/* Tab Navigation - iOS Style */
 .tab-bar {
     display: flex;
     position: fixed;
-    bottom: 10px; /* Raised up from the bottom */
+    bottom: 25px; /* Raised higher from the bottom */
     left: 10px;
     right: 10px;
     background-color: white;
     border: 1px solid rgba(0, 0, 0, 0.1);
     z-index: 10;
-    max-width: 480px; /* Slightly smaller to allow for margins */
+    max-width: 480px;
     margin: 0 auto;
     height: 60px;
-    border-radius: 30px; /* Fully rounded corners for pill shape */
+    border-radius: 30px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 0;
   }
   
-  /* Screen padding to prevent content from being hidden behind tab bar */
+  /* Screen padding adjustment for the raised nav bar */
   .screen {
-    padding-bottom: 100px; /* Increased to ensure content isn't hidden */
+    padding-bottom: 120px;
   }
   
-  /* Tab Item Styling */
+  /* Tab Item styling */
   .tab-item {
     flex: 1;
     display: flex;
@@ -432,17 +431,17 @@ select:focus {
     color: var(--text-secondary);
     transition: color 0.2s;
     height: 100%;
-    padding: 8px 0;
+    padding: 6px 0;
   }
   
   .tab-item.active {
     color: var(--primary-color);
   }
   
-  /* Tab Icon Styling */
+  /* Icon styling */
   .tab-icon {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     margin-bottom: 4px;
     opacity: 0.7;
     transition: opacity 0.2s;
@@ -452,26 +451,9 @@ select:focus {
     opacity: 1;
   }
   
-  /* Tab Label Styling */
+  /* Label styling */
   .tab-label {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 500;
     letter-spacing: -0.2px;
   }
-  
-  /* Force mobile styles */
-  @media (max-width: 767px) {
-    .tab-bar {
-      height: 60px !important;
-      bottom: 10px !important;
-      left: 10px !important;
-      right: 10px !important;
-      border-radius: 30px !important;
-      padding: 0 !important;
-    }
-    
-    .screen {
-      padding-bottom: 100px !important;
-    }
-  }
-}
