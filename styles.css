@@ -130,19 +130,25 @@ header h1 {
 .tab-bar {
     display: flex;
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 25px; /* Raised higher from the bottom */
+    left: 10px;
+    right: 10px;
     background-color: white;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     z-index: 10;
-    max-width: 500px;
+    max-width: 480px;
     margin: 0 auto;
-    height: 49px;
-    border-radius: 16px 16px 0 0;
-    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.05);
+    height: 60px;
+    border-radius: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+  
+/* Screen padding adjustment for the raised nav bar */
+.screen {
+    padding-bottom: 120px;
 }
 
+/* Tab Item styling */
 .tab-item {
     flex: 1;
     display: flex;
@@ -153,17 +159,18 @@ header h1 {
     color: var(--text-secondary);
     transition: color 0.2s;
     height: 100%;
-    padding: 0;
+    padding: 6px 0;
 }
 
 .tab-item.active {
     color: var(--primary-color);
 }
 
+/* Icon styling */
 .tab-icon {
-    width: 20px;
-    height: 20px;
-    margin-bottom: 3px;
+    width: 22px;
+    height: 22px;
+    margin-bottom: 4px;
     opacity: 0.7;
     transition: opacity 0.2s;
 }
@@ -172,6 +179,7 @@ header h1 {
     opacity: 1;
 }
 
+/* Label styling */
 .tab-label {
     font-size: 10px;
     font-weight: 500;
@@ -195,69 +203,121 @@ header h1 {
     background-color: #0062cc;
 }
 
+/* Chart Container */
+.chart-container {
+    margin: 16px;
+    background: var(--card-background, #fff);
+    border-radius: var(--border-radius, 12px);
+    box-shadow: var(--card-shadow, 0 2px 8px rgba(0, 0, 0, 0.05));
+    padding: 16px;
+    height: 250px;
+}
+
+.chart-header {
+    margin-bottom: 8px;
+}
+
+.chart-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-color, #007AFF);
+}
+
+/* Stats Cards Grid - With proper spacing */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 24px 16px; /* Added more top/bottom margin for spacing */
+}
+
+.stat-card {
+    background-color: var(--card-background, #fff);
+    border-radius: var(--border-radius, 12px);
+    box-shadow: var(--card-shadow, 0 2px 8px rgba(0, 0, 0, 0.05));
+    padding: 14px;
+    text-align: center;
+    height: auto; /* Let content determine height */
+}
+
+.stat-card .label {
+    font-size: 14px;
+    color: var(--text-secondary, #86868b);
+    margin-bottom: 8px;
+    text-transform: lowercase;
+}
+
+.stat-card .value {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-color, #007AFF);
+}
+
+/* Timeframe Toggle */
+.timeframe-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
 .toggle-btn {
-    background-color: #f1f3f4;
+    background: none;
     border: none;
+    font-size: 15px;
     padding: 8px 16px;
-    border-radius: 8px;
     cursor: pointer;
-    font-weight: 500;
+    color: var(--text-secondary, #86868b);
+    border-radius: 20px;
+    transition: all 0.2s;
 }
 
 .toggle-btn.active {
-    background-color: var(--primary-color);
     color: white;
+    background-color: var(--primary-color, #007AFF);
 }
 
-.preset-btn {
-    background-color: #f1f3f4;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-right: 8px;
+/* Daily History Items */
+.history-list-header {
+    margin: 24px 16px 8px 16px;
+    font-size: 16px;
     font-weight: 500;
+    color: var(--text-secondary, #86868b);
 }
 
-/* Charts */
-.chart-container {
-    width: 100%;
-    margin: 16px 0;
-    height: 250px;
-    background-color: white;
-    border-radius: 10px;
-    padding: 16px;
-    box-shadow: var(--card-shadow);
-}
-
-/* History Lists */
 .history-list {
-    margin-top: 16px;
-    background-color: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: var(--card-shadow);
+    margin: 0 16px 80px 16px; /* Added bottom margin to account for nav bar */
 }
 
 .history-item {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--light-gray);
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background-color: var(--card-background, #fff);
+    margin-bottom: 8px;
+    border-radius: var(--border-radius, 12px);
+    box-shadow: var(--card-shadow, 0 2px 8px rgba(0, 0, 0, 0.05));
 }
 
 .history-date {
     font-weight: 500;
-}
-
-.success-value {
-    color: var(--secondary-color);
-    font-weight: 500;
+    font-size: 16px;
 }
 
 .default-value {
-    color: var(--primary-color);
+    color: var(--primary-color, #007AFF);
     font-weight: 500;
+}
+
+.success-value {
+    color: var(--secondary-color, #34C759);
+    font-weight: 500;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--text-secondary);
 }
 
 /* Weight Section */
@@ -374,86 +434,39 @@ select:focus {
     display: flex;
 }
 
-/* Timeframe Toggle */
-.timeframe-toggle {
-    display: flex;
-    gap: 8px;
+.preset-btn {
+    background-color: #f1f3f4;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-right: 8px;
+    font-weight: 500;
 }
 
-.empty-message {
-    text-align: center;
-    padding: 24px 0;
-    color: var(--text-secondary);
-}
-
-/* Media Queries for Larger Screens */
-@media (min-width: 768px) {
-    .progress-ring-container {
-        width: 250px;
-        height: 250px;
+/* Make sure all elements are mobile friendly */
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin: 20px 12px;
     }
     
-    #today-steps {
-        font-size: 40px;
+    .stat-card {
+        padding: 12px 8px;
+    }
+    
+    .stat-card .label {
+        font-size: 12px;
+    }
+    
+    .stat-card .value {
+        font-size: 16px;
+    }
+    
+    .chart-container {
+        height: 220px;
+        margin: 12px;
+        padding: 12px;
     }
 }
-
-/* Tab Navigation - iOS Style */
-.tab-bar {
-    display: flex;
-    position: fixed;
-    bottom: 25px; /* Raised higher from the bottom */
-    left: 10px;
-    right: 10px;
-    background-color: white;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    z-index: 10;
-    max-width: 480px;
-    margin: 0 auto;
-    height: 60px;
-    border-radius: 30px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Screen padding adjustment for the raised nav bar */
-  .screen {
-    padding-bottom: 120px;
-  }
-  
-  /* Tab Item styling */
-  .tab-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: color 0.2s;
-    height: 100%;
-    padding: 6px 0;
-  }
-  
-  .tab-item.active {
-    color: var(--primary-color);
-  }
-  
-  /* Icon styling */
-  .tab-icon {
-    width: 22px;
-    height: 22px;
-    margin-bottom: 4px;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-  }
-  
-  .tab-item.active .tab-icon {
-    opacity: 1;
-  }
-  
-  /* Label styling */
-  .tab-label {
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: -0.2px;
-  }

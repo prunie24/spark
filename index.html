@@ -43,25 +43,53 @@
                 <button class="primary-btn" id="add-steps-btn">Add Steps</button>
             </div>
         </div>
-        
-        <!-- History Screen -->
-        <div class="screen hidden" id="history-screen">
-            <header>
-                <h1>History</h1>
-                <div class="timeframe-toggle">
-                    <button class="toggle-btn active" id="week-toggle">Week</button>
-                    <button class="toggle-btn" id="month-toggle">Month</button>
-                </div>
-            </header>
-            
-            <div class="chart-container">
-                <canvas id="history-chart"></canvas>
-            </div>
-            
-            <div class="history-list" id="steps-history-list">
-                <!-- Step history entries will be inserted here -->
-            </div>
-        </div>
+        <!-- Updated History Screen with proper spacing and history list -->
+<div class="screen hidden" id="history-screen">
+    <header>
+      <h1>history</h1>
+      <!-- Time Filter Buttons -->
+      <div class="timeframe-toggle">
+        <button class="toggle-btn active" data-filter="week">Week</button>
+        <button class="toggle-btn" data-filter="month">Month</button>
+        <button class="toggle-btn" data-filter="year">Year</button>
+      </div>
+    </header>
+  
+    <!-- Chart Container -->
+    <div class="chart-container">
+      <div class="chart-header">
+        <div class="chart-title" id="chart-title">Daily Steps</div>
+      </div>
+      <canvas id="history-chart"></canvas>
+    </div>
+  
+    <!-- Stats Cards Grid - With proper spacing and no highlight -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">daily goal</div>
+        <div class="value" id="history-goal">12,000 steps</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">best streak 🔥</div>
+        <div class="value" id="history-streak">0 days</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">best day</div>
+        <div class="value" id="best-day">0 steps</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">average day</div>
+        <div class="value" id="average-day">0 steps</div>
+      </div>
+    </div>
+  
+    <!-- Individual Day History Items -->
+    <div class="history-list-header">Step History</div>
+    <div class="history-list" id="steps-history-list">
+      <!-- Daily step history entries will be inserted here -->
+    </div>
+  </div>
+  
         
         <!-- Weight Screen -->
         <div class="screen hidden" id="weight-screen">

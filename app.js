@@ -29,8 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const goalSettingsBtn = document.getElementById('goal-settings');
     
     // History Screen Elements
-    const weekToggle = document.getElementById('week-toggle');
-    const monthToggle = document.getElementById('month-toggle');
+    const toggleBtns = document.querySelectorAll('.toggle-btn');
     const stepsHistoryList = document.getElementById('steps-history-list');
     
     // Weight Screen Elements
@@ -158,16 +157,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         // History Timeframe Toggle
-        weekToggle.addEventListener('click', () => {
-            weekToggle.classList.add('active');
-            monthToggle.classList.remove('active');
-            renderHistoryChart('week');
-        });
-        
-        monthToggle.addEventListener('click', () => {
-            monthToggle.classList.add('active');
-            weekToggle.classList.remove('active');
-            renderHistoryChart('month');
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all toggles
+                document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                // Add active class to clicked toggle
+                btn.classList.add('active');
+                // Get the filter type
+                const filter = btn.getAttribute('data-filter');
+                // Render the appropriate chart
+                renderHistoryChart(filter);
+            });
         });
     }
     
@@ -282,7 +282,76 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Render History Screen
     function renderHistoryScreen() {
-        renderHistoryChart('week'); // Default to weekly view
+        // Default to weekly view
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-filter') === 'week') {
+                btn.classList.add('active');
+            }
+        });
+        
+        renderHistoryChart('week');
+        
+        // Update stats cards with actual data
+        const historyGoal = document.getElementById('history-goal');
+        const historyStreak = document.getElementById('history-streak');
+        const bestDay = document.getElementById('best-day');
+        const averageDay = document.getElementById('average-day');
+        
+        // Set goal
+        historyGoal.textContent = appState.stepGoal.toLocaleString() + ' steps';
+        
+        // Calculate best streak (not just current streak)
+        let currentStreak = 0;
+        let bestStreak = appState.streakCount;
+        
+        // Sort data by date for streak calculation
+        const sortedData = [...appState.stepsData].sort((a, b) => 
+            new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
+        
+        // Calculate streaks from historical data
+        for (let i = 0; i < sortedData.length; i++) {
+            if (sortedData[i].steps >= appState.stepGoal) {
+                currentStreak++;
+                if (currentStreak > bestStreak) {
+                    bestStreak = currentStreak;
+                }
+            } else {
+                currentStreak = 0;
+            }
+        }
+        
+        // Add today if goal met
+        if (appState.todaySteps >= appState.stepGoal) {
+            currentStreak++;
+            if (currentStreak > bestStreak) {
+                bestStreak = currentStreak;
+            }
+        }
+        
+        // Set best streak
+        historyStreak.textContent = bestStreak + ' days';
+        
+        // Calculate best day
+        let maxSteps = appState.todaySteps;
+        appState.stepsData.forEach(entry => {
+            if (entry.steps > maxSteps) {
+                maxSteps = entry.steps;
+            }
+        });
+        bestDay.textContent = maxSteps.toLocaleString() + ' steps';
+        
+        // Calculate average day
+        let totalSteps = appState.todaySteps;
+        let totalDays = appState.stepsData.length > 0 ? appState.stepsData.length + 1 : 1;
+        appState.stepsData.forEach(entry => {
+            totalSteps += entry.steps;
+        });
+        const averageSteps = Math.round(totalSteps / totalDays);
+        averageDay.textContent = averageSteps.toLocaleString() + ' steps';
+        
+        // Render the history list
         renderStepsHistoryList();
     }
     
@@ -363,8 +432,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 datasets: [{
                     label: 'Steps',
                     data: data.values,
-                    backgroundColor: data.colors,
-                    borderWidth: 0
+                    backgroundColor: '#4285F4', // Consistent blue for all bars
+                    borderWidth: 0,
+                    borderRadius: 4,
+                    maxBarThickness: 35
                 }]
             },
             options: {
@@ -375,12 +446,32 @@ document.addEventListener('DOMContentLoaded', () => {
                         beginAtZero: true,
                         grid: {
                             display: true,
-                            color: 'rgba(0, 0, 0, 0.1)'
+                            color: 'rgba(0, 0, 0, 0.07)'
+                        },
+                        ticks: {
+                            font: {
+                                weight: 'bold'
+                            },
+                            callback: function(value) {
+                                if (value === 0) return '0';
+                                if (value === 2000) return '2k';
+                                if (value === 4000) return '4k';
+                                if (value === 6000) return '6k';
+                                if (value === 8000) return '8k';
+                                if (value === 10000) return '10k';
+                                if (value === 12000) return '12k';
+                                return '';
+                            }
                         }
                     },
                     x: {
                         grid: {
                             display: false
+                        },
+                        ticks: {
+                            font: {
+                                weight: 'bold'
+                            }
                         }
                     }
                 },
@@ -402,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Get history data for the selected timeframe
     function getHistoryDataForTimeframe(timeframe) {
-        const days = timeframe === 'week' ? 7 : 30;
+        const days = timeframe === 'week' ? 7 : timeframe === 'month' ? 30 : 365;
         const today = new Date();
         const result = {
             labels: [],
@@ -416,9 +507,11 @@ document.addEventListener('DOMContentLoaded', () => {
             date.setDate(today.getDate() - i);
             const dateStr = date.toISOString().split('T')[0];
             
-            // Format date label
+            // Format date label with month first, then date (Feb 25 format)
             const dateObj = new Date(dateStr);
-            const label = dateObj.getDate() + '/' + (dateObj.getMonth() + 1);
+            const month = dateObj.toLocaleString('default', { month: 'short' });
+            const day = dateObj.getDate();
+            const label = `${month} ${day}`;
             result.labels.push(label);
             
             // Find steps for this date
@@ -428,13 +521,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Handle special case for today
             if (dateStr === todayStr) {
                 result.values.push(appState.todaySteps);
-                result.colors.push(appState.todaySteps >= appState.stepGoal ? '#34C759' : '#007AFF');
             } else if (stepsEntry) {
                 result.values.push(stepsEntry.steps);
-                result.colors.push(stepsEntry.steps >= appState.stepGoal ? '#34C759' : '#007AFF');
             } else {
                 result.values.push(0);
-                result.colors.push('#E5E5EA');
             }
         }
         
@@ -459,15 +549,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Sort by date, most recent first
         stepsDataCopy.sort((a, b) => new Date(b.date) - new Date(a.date));
         
-        // Display the last 10 entries
-        const recentEntries = stepsDataCopy.slice(0, 10);
-        
-        recentEntries.forEach(entry => {
+        // Display entries
+        stepsDataCopy.forEach(entry => {
             const dateObj = new Date(entry.date);
-            const formattedDate = dateObj.toLocaleDateString(undefined, { 
-                weekday: 'short', 
+            
+            // Format as "Tue, Feb 25" like the example image
+            const formattedDate = dateObj.toLocaleDateString('en-US', { 
+                weekday: 'short',
                 month: 'short', 
-                day: 'numeric' 
+                day: 'numeric'
             });
             
             const historyItem = document.createElement('div');
@@ -484,10 +574,18 @@ document.addEventListener('DOMContentLoaded', () => {
             historyItem.appendChild(historyDate);
             historyItem.appendChild(historyValue);
             stepsHistoryList.appendChild(historyItem);
+            
+            // Make the history item clickable to potentially show more details
+            historyItem.addEventListener('click', () => {
+                // You could show a modal with more details about that day
+                // For now just log to demonstrate functionality
+                console.log('Detail view for:', formattedDate, entry.steps + ' steps');
+                // In the future, you could implement: showDayDetailModal(entry);
+            });
         });
         
         // If no entries, show a message
-        if (recentEntries.length === 0) {
+        if (stepsDataCopy.length === 0) {
             const emptyMessage = document.createElement('div');
             emptyMessage.className = 'empty-message';
             emptyMessage.textContent = 'No step data recorded yet.';
@@ -518,7 +616,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         recentWeights.forEach(entry => {
             const dateObj = new Date(entry.date);
-            const label = dateObj.getDate() + '/' + (dateObj.getMonth() + 1);
+            const month = dateObj.toLocaleString('default', { month: 'short' });
+            const day = dateObj.getDate();
+            const label = `${month} ${day}`; // Match history chart format
             labels.push(label);
             
             // Convert to the current unit if needed
@@ -558,11 +658,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         grid: {
                             display: true,
                             color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            font: {
+                                weight: 'bold'
+                            }
                         }
                     },
                     x: {
                         grid: {
                             display: false
+                        },
+                        ticks: {
+                            font: {
+                                weight: 'bold'
+                            }
                         }
                     }
                 },
