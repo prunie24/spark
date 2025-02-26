@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spark - Step & Weight Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icons/favicon.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <meta name="theme-color" content="#4285f4">
+    <!-- Add Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Home Screen -->
+        <div class="screen" id="home-screen">
+            <header>
+                <div class="streak-container">
+                    <span id="streak-count">0</span>
+                    <span class="flame-icon">🔥</span>
+                </div>
+                <h1>Spark</h1>
+                <div class="goal-settings" id="goal-settings">
+                    <span class="goal-icon">🎯</span>
+                </div>
+            </header>
+            
+            <div class="progress-container">
+                <div class="progress-ring-container">
+                    <canvas id="progress-ring"></canvas>
+                    <div class="progress-text">
+                        <span id="today-steps">0</span>
+                        <span class="steps-label">steps</span>
+                    </div>
+                </div>
+                
+                <div class="remaining-steps">
+                    <span id="remaining-steps">10,000</span> steps to goal
+                </div>
+                
+                <button class="primary-btn" id="add-steps-btn">Add Steps</button>
+            </div>
+        </div>
+        
+        <!-- History Screen -->
+        <div class="screen hidden" id="history-screen">
+            <header>
+                <h1>History</h1>
+                <div class="timeframe-toggle">
+                    <button class="toggle-btn active" id="week-toggle">Week</button>
+                    <button class="toggle-btn" id="month-toggle">Month</button>
+                </div>
+            </header>
+            
+            <div class="chart-container">
+                <canvas id="history-chart"></canvas>
+            </div>
+            
+            <div class="history-list" id="steps-history-list">
+                <!-- Step history entries will be inserted here -->
+            </div>
+        </div>
+        
+        <!-- Weight Screen -->
+        <div class="screen hidden" id="weight-screen">
+            <header>
+                <h1>Weight</h1>
+            </header>
+            
+            <div class="weight-current">
+                <span id="current-weight">--</span>
+                <span id="weight-unit">lbs</span>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="weight-chart"></canvas>
+            </div>
+            
+            <button class="primary-btn" id="add-weight-btn">Add Weight</button>
+            
+            <div class="weight-history" id="weight-history-list">
+                <!-- Weight entries will be inserted here -->
+            </div>
+        </div>
+        
+        <!-- Tab Navigation -->
+        <nav class="tab-bar">
+            <div class="tab-item active" data-screen="home-screen">
+                <span class="tab-icon">📊</span>
+                <span class="tab-label">Home</span>
+            </div>
+            <div class="tab-item" data-screen="history-screen">
+                <span class="tab-icon">📅</span>
+                <span class="tab-label">History</span>
+            </div>
+            <div class="tab-item" data-screen="weight-screen">
+                <span class="tab-icon">⚖️</span>
+                <span class="tab-label">Weight</span>
+            </div>
+        </nav>
+    </div>
+    
+    <!-- Modals -->
+    <div class="modal-overlay hidden" id="modal-overlay">
+        <!-- Add Steps Modal -->
+        <div class="modal hidden" id="add-steps-modal">
+            <div class="modal-header">
+                <h2>Add Steps</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="steps-input">Steps for today:</label>
+                <input type="number" id="steps-input" min="0" placeholder="Enter steps">
+                <button class="primary-btn" id="save-steps-btn">Save</button>
+            </div>
+        </div>
+        
+        <!-- Add Weight Modal -->
+        <div class="modal hidden" id="add-weight-modal">
+            <div class="modal-header">
+                <h2>Add Weight</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="weight-input">Current weight:</label>
+                <div class="weight-input-container">
+                    <input type="number" id="weight-input" min="0" step="0.1" placeholder="Enter weight">
+                    <select id="weight-unit-select">
+                        <option value="lbs">lbs</option>
+                        <option value="kg">kg</option>
+                    </select>
+                </div>
+                <button class="primary-btn" id="save-weight-btn">Save</button>
+            </div>
+        </div>
+        
+        <!-- Set Goal Modal -->
+        <div class="modal hidden" id="set-goal-modal">
+            <div class="modal-header">
+                <h2>Set Daily Goal</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="goal-input">Daily step goal:</label>
+                <input type="number" id="goal-input" min="1000" placeholder="Enter goal">
+                <div class="goal-presets">
+                    <button class="preset-btn" data-value="8000">8k</button>
+                    <button class="preset-btn" data-value="10000">10k</button>
+                    <button class="preset-btn" data-value="12000">12k</button>
+                </div>
+                <button class="primary-btn" id="save-goal-btn">Save</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+    <script>
+        // Register Service Worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('ServiceWorker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
