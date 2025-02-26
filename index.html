@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spark - Step & Weight Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>spark - Step & Weight Tracker</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icons/favicon.png">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <meta name="theme-color" content="#4285f4">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <!-- Add Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 </head>
@@ -19,11 +21,20 @@
             <header>
                 <div class="streak-container">
                     <span id="streak-count">0</span>
-                    <span class="flame-icon">🔥</span>
+                    <svg class="streak-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+                    </svg>
                 </div>
-                <h1>Spark</h1>
+                <h1>spark</h1>
                 <div class="goal-settings" id="goal-settings">
-                    <span class="goal-icon">🎯</span>
+                    <svg class="goal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <circle cx="12" cy="12" r="3"/>
+                        <line x1="12" y1="2" x2="12" y2="4"/>
+                        <line x1="12" y1="20" x2="12" y2="22"/>
+                        <line x1="2" y1="12" x2="4" y2="12"/>
+                        <line x1="20" y1="12" x2="22" y2="12"/>
+                    </svg>
                 </div>
             </header>
             
@@ -47,7 +58,7 @@
         <!-- History Screen -->
         <div class="screen hidden" id="history-screen">
             <header>
-                <h1>History</h1>
+                <h1>history</h1>
                 <div class="timeframe-toggle">
                     <button class="toggle-btn active" id="week-toggle">Week</button>
                     <button class="toggle-btn" id="month-toggle">Month</button>
@@ -66,7 +77,7 @@
         <!-- Weight Screen -->
         <div class="screen hidden" id="weight-screen">
             <header>
-                <h1>Weight</h1>
+                <h1>weight</h1>
             </header>
             
             <div class="weight-current">
@@ -88,15 +99,27 @@
         <!-- Tab Navigation -->
         <nav class="tab-bar">
             <div class="tab-item active" data-screen="home-screen">
-                <span class="tab-icon">📊</span>
+                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
                 <span class="tab-label">Home</span>
             </div>
             <div class="tab-item" data-screen="history-screen">
-                <span class="tab-icon">📅</span>
+                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="18" rx="2" ry="2"></rect>
+                    <line x1="8" y1="10" x2="16" y2="10"></line>
+                    <line x1="8" y1="14" x2="14" y2="14"></line>
+                    <line x1="8" y1="18" x2="10" y2="18"></line>
+                </svg>
                 <span class="tab-label">History</span>
             </div>
             <div class="tab-item" data-screen="weight-screen">
-                <span class="tab-icon">⚖️</span>
+                <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="12" y1="3" x2="12" y2="21"></line>
+                </svg>
                 <span class="tab-label">Weight</span>
             </div>
         </nav>
