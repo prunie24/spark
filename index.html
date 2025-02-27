@@ -21,7 +21,7 @@
                     <span id="streak-count">0</span>
                     <span class="flame-icon">🔥</span>
                 </div>
-                <h1>spark</h1>
+                <h1 class="brand-name">spark</h1>
                 <button class="goal-btn" id="goal-settings">Set Goal</button>
             </header>
             
@@ -46,13 +46,15 @@
         
         <!-- History Screen -->
         <div class="screen hidden" id="history-screen">
-            <header>
-                <h1 class="left-aligned">history</h1>
+            <header class="split-header">
+                <div class="left-section">
+                    <h1 class="left-aligned">history</h1>
+                </div>
                 <!-- Time Filter Buttons -->
                 <div class="timeframe-toggle">
                     <button class="toggle-btn active" data-filter="week">Week</button>
-                    <button class="toggle-btn" data-filter="month">3 Months</button>
-                    <button class="toggle-btn" data-filter="year">Year</button>
+                    <button class="toggle-btn" data-filter="month">3 Month</button>
+                    <button class="toggle-btn" data-filter="year">6 Month</button>
                 </div>
             </header>
             
@@ -99,8 +101,10 @@
         
         <!-- Weight Screen -->
         <div class="screen hidden" id="weight-screen">
-            <header>
-                <h1 class="left-aligned">weight</h1>
+            <header class="split-header">
+                <div class="left-section">
+                    <h1 class="left-aligned">weight</h1>
+                </div>
                 <button class="goal-btn" id="set-weight-goal-btn">Set Goal</button>
             </header>
             
@@ -217,6 +221,7 @@
                             <button class="today-btn" id="weight-today-btn">Today</button>
                         </div>
                     </div>
+                    <div class="form-spacing"></div>
                     <button class="primary-btn full-width" id="save-weight-btn">Save</button>
                 </div>
             </div>
@@ -248,6 +253,7 @@
                 <div class="modal-body">
                     <label for="weight-goal-input">Target Weight (lb):</label>
                     <input type="number" id="weight-goal-input" min="0" step="0.1" placeholder="Enter target weight">
+                    <div class="button-spacing"></div>
                     <button class="primary-btn full-width" id="save-weight-goal-btn">Save Goal</button>
                 </div>
             </div>

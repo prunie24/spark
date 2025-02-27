@@ -652,9 +652,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (timeframe === 'week') {
             chartTitle.textContent = 'Daily Steps (Week)';
         } else if (timeframe === 'month') {
-            chartTitle.textContent = 'Daily Steps (3 Months)';
+            chartTitle.textContent = 'Daily Steps (3 Month)';
         } else if (timeframe === 'year') {
-            chartTitle.textContent = 'Daily Steps (Year)';
+            chartTitle.textContent = 'Daily Steps (6 Month)';
         }
         
         // Get data for the selected timeframe
@@ -721,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 days = 90; // 3 months
                 break;
             case 'year':
-                days = 365;
+                days = 180; // 6 months
                 break;
             default:
                 days = 7;
