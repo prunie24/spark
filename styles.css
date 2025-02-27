@@ -846,3 +846,65 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 .clear-btn:hover {
     background-color: rgba(255, 59, 48, 0.1);
 }
+/* Add these styles */
+#set-weight-goal-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-left: auto;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 16px 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 24px 16px;
+    text-align: center;
+}
+
+.stat-card {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Fix confirm modal buttons */
+#confirm-modal .button-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+#cancel-btn, #confirm-btn {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+}
+/* Add these styles for the confirm modal */
+#confirm-modal .button-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+#cancel-btn, #confirm-btn {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0;
+}

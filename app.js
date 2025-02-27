@@ -145,39 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showScreen('home-screen'); // Default to home screen
         
         // Create awards section in history screen if it doesn't exist
-        createAwardsSection();
-    }
-    
-    // Create and append awards section to history screen
-    function createAwardsSection() {
-        if (!document.getElementById('awards-section')) {
-            const awardsSection = document.createElement('div');
-            awardsSection.id = 'awards-section';
-            awardsSection.className = 'awards-section';
-            
-            const awardsHeader = document.createElement('div');
-            awardsHeader.className = 'history-list-header';
-            awardsHeader.textContent = 'Awards';
-            
-            const awardsList = document.createElement('ul');
-            awardsList.id = 'awards-list';
-            awardsList.className = 'awards-list';
-            
-            awardsSection.appendChild(awardsHeader);
-            awardsSection.appendChild(awardsList);
-            
-            historyScreen.appendChild(awardsSection);
-            
-            // Add event listener for award deletion
-            awardsList.addEventListener('click', function(e) {
-                if (e.target.classList.contains('award-delete')) {
-                    const index = parseInt(e.target.getAttribute('data-index'));
-                    appState.awards.splice(index, 1);
-                    saveAppState();
-                    renderAwards();
-                }
-            });
-        }
     }
     
     // Load app state from localStorage
@@ -345,6 +312,10 @@ document.addEventListener('DOMContentLoaded', () => {
         addStepsModal.classList.add('hidden');
         addWeightModal.classList.add('hidden');
         setGoalModal.classList.add('hidden');
+        const weightGoalModal = document.getElementById('weight-goal-modal');
+    if (weightGoalModal) weightGoalModal.classList.add('hidden');
+    const confirmModal = document.getElementById('confirm-modal');
+    if (confirmModal) confirmModal.classList.add('hidden');
     }
     
     // Save steps data
@@ -674,8 +645,8 @@ document.addEventListener('DOMContentLoaded', () => {
             currentWeightEl.textContent = '--';
             weightUnitEl.textContent = appState.weightUnit;
             weightUnitSelect.value = appState.weightUnit;
+            updateWeightStats();
         }
-        
         renderWeightChart();
         renderWeightHistoryList();
     }
@@ -1192,69 +1163,71 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Add Weight Goal Setting Functionality
-    function addWeightGoalSetting() {
-        // Create weight goal button if not exists
-        if (!document.getElementById('set-weight-goal-btn')) {
-            const weightGoalBtn = document.createElement('button');
-            weightGoalBtn.id = 'set-weight-goal-btn';
-            weightGoalBtn.className = 'secondary-btn';
-            weightGoalBtn.textContent = 'Set Weight Goal';
-            
-            // Add after the add weight button
-            const addWeightBtnContainer = addWeightBtn.parentElement;
-            addWeightBtnContainer.appendChild(weightGoalBtn);
-            
-            // Create weight goal modal
-            const weightGoalModal = document.createElement('div');
-            weightGoalModal.id = 'weight-goal-modal';
-            weightGoalModal.className = 'modal hidden';
-            
-            weightGoalModal.innerHTML = `
-                <div class="modal-header">
-                    <h2>Set Weight Goal</h2>
-                    <button class="close-btn">&times;</button>
+    // Completely replace the addWeightGoalSetting function with this:
+function addWeightGoalSetting() {
+    // Create weight goal modal if it doesn't exist
+    if (!document.getElementById('weight-goal-modal')) {
+        const weightGoalModal = document.createElement('div');
+        weightGoalModal.id = 'weight-goal-modal';
+        weightGoalModal.className = 'modal hidden';
+        
+        weightGoalModal.innerHTML = `
+            <div class="modal-header">
+                <h2>Set Weight Goal</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="weight-goal-input">Target Weight:</label>
+                <div class="weight-input-container">
+                    <input type="number" id="weight-goal-input" min="0" step="0.1" placeholder="Enter target weight">
+                    <select id="weight-goal-unit-select">
+                        <option value="lbs">lbs</option>
+                        <option value="kg">kg</option>
+                    </select>
                 </div>
-                <div class="modal-body">
-                    <label for="weight-goal-input">Target Weight:</label>
-                    <div class="weight-input-container">
-                        <input type="number" id="weight-goal-input" min="0" step="0.1" placeholder="Enter target weight">
-                        <select id="weight-goal-unit-select">
-                            <option value="lbs">lbs</option>
-                            <option value="kg">kg</option>
-                        </select>
-                    </div>
-                    <button class="primary-btn full-width" id="save-weight-goal-btn">Save Goal</button>
-                </div>
-            `;
-            
-            // Add to modal overlay
-            modalOverlay.appendChild(weightGoalModal);
-            
-            // Add event listeners
-            weightGoalBtn.addEventListener('click', () => {
-                // If we have a goal, pre-fill form
-                if (appState.weightGoal) {
-                    document.getElementById('weight-goal-input').value = appState.weightGoal.target;
-                    document.getElementById('weight-goal-unit-select').value = appState.weightGoal.unit;
-                } else if (appState.weightData.length > 0) {
-                    // Default to latest weight unit
-                    document.getElementById('weight-goal-unit-select').value = appState.weightUnit;
-                }
-                
-                showModal(weightGoalModal);
-            });
-            
-            // Close button listener
-            weightGoalModal.querySelector('.close-btn').addEventListener('click', () => {
-                hideAllModals();
-            });
-            
-            // Save button listener
-            document.getElementById('save-weight-goal-btn').addEventListener('click', () => {
-                saveWeightGoal();
-            });
+                <button class="primary-btn full-width" id="save-weight-goal-btn">Save Goal</button>
+            </div>
+        `;
+        
+        // Add to modal overlay
+        modalOverlay.appendChild(weightGoalModal);
+        
+        // Add event listeners
+        const closeBtn = weightGoalModal.querySelector('.close-btn');
+        closeBtn.addEventListener('click', () => {
+            hideAllModals();
+        });
+        
+        // Save button listener
+        const saveWeightGoalBtn = document.getElementById('save-weight-goal-btn');
+        if (saveWeightGoalBtn) {
+            saveWeightGoalBtn.addEventListener('click', saveWeightGoal);
         }
     }
+    
+    // Set button click listener
+    const weightGoalBtn = document.getElementById('set-weight-goal-btn');
+    if (weightGoalBtn) {
+        weightGoalBtn.addEventListener('click', () => {
+            // If we have a goal, pre-fill form
+            const weightGoalInput = document.getElementById('weight-goal-input');
+            const weightGoalUnitSelect = document.getElementById('weight-goal-unit-select');
+            
+            if (appState.weightGoal) {
+                weightGoalInput.value = appState.weightGoal.target;
+                weightGoalUnitSelect.value = appState.weightGoal.unit;
+            } else if (appState.weightData.length > 0) {
+                // Default to latest weight unit
+                weightGoalUnitSelect.value = appState.weightUnit;
+            }
+            
+            // Make sure only this modal is showing
+            hideAllModals();
+            modalOverlay.classList.remove('hidden');
+            document.getElementById('weight-goal-modal').classList.remove('hidden');
+        });
+    }
+}
     
     // Save Weight Goal
     function saveWeightGoal() {
@@ -1634,7 +1607,7 @@ function setupClearHistoryButton() {
             appState = {
                 todaySteps: 0,
                 stepGoal: stepGoal,
-                streakCount: a, 
+                streakCount: 0, 
                 bestStreak: bestStreak,
                 lastUpdateDate: new Date().toISOString().split('T')[0],
                 stepsData: [],
@@ -1704,7 +1677,6 @@ function showToast(message, type = 'success') {
         addAdditionalStyles();
         addWeightGoalSetting();
         addDeletionFunctionality();
-        setupDataImport();
         setupClearHistoryButton();  // Add this line
     }
     
