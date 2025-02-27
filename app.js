@@ -6,12 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
         todaySteps: 0,
         stepGoal: 10000,
         streakCount: 0,
-        bestStreak: 0,  // Add this line
+        bestStreak: 0,
         lastUpdateDate: null, // For streak calculation
         stepsData: [], // Array of {date, steps} objects
-        weightData: [], // Array of {date, weight, unit} objects
-        weightUnit: 'lbs', // Default unit
-        weightGoal: null // Target weight goal
+        weightData: [], // Array of {date, weight} objects
+        weightGoal: null, // Target weight goal
+        awards: [] // Initialize awards array
     };
     
     // DOM Elements
@@ -41,9 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Weight Screen Elements
     const currentWeightEl = document.getElementById('current-weight');
-    const weightUnitEl = document.getElementById('weight-unit');
     const addWeightBtn = document.getElementById('add-weight-btn');
     const weightHistoryList = document.getElementById('weight-history-list');
+    const weightGoalValue = document.getElementById('weight-goal-value');
+    const weightProgressValue = document.getElementById('weight-progress-value');
+    const weightChangeValue = document.getElementById('weight-change-value');
+    const showGoalLineToggle = document.getElementById('show-goal-line');
     
     // Modals
     const modalOverlay = document.getElementById('modal-overlay');
@@ -53,75 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeButtons = document.querySelectorAll('.close-btn');
     
     // Form Elements
-    const stepsInput = document.getElementById('steps-input');
-    const stepsDateInput = document.createElement('input');
-    stepsDateInput.type = 'date';
-    stepsDateInput.id = 'steps-date-input';
-    stepsDateInput.className = 'date-input';
-    
-    const weightInput = document.getElementById('weight-input');
-    const weightDateInput = document.createElement('input');
-    weightDateInput.type = 'date';
-    weightDateInput.id = 'weight-date-input';
-    weightDateInput.className = 'date-input';
-    
-    const weightUnitSelect = document.getElementById('weight-unit-select');
     const goalInput = document.getElementById('goal-input');
     const presetButtons = document.querySelectorAll('.preset-btn');
-    const saveStepsBtn = document.getElementById('save-steps-btn');
-    const saveWeightBtn = document.getElementById('save-weight-btn');
-    const saveGoalBtn = document.getElementById('save-goal-btn');
-    
-    // Add Date Input to Modals
-    const stepsModalBody = document.querySelector('#add-steps-modal .modal-body');
-    const weightModalBody = document.querySelector('#add-weight-modal .modal-body');
-    
-    // Add a container for date selection in steps modal
-    const stepsDateContainer = document.createElement('div');
-    stepsDateContainer.className = 'date-selection-container';
-    
-    const stepsDateLabel = document.createElement('label');
-    stepsDateLabel.htmlFor = 'steps-date-input';
-    stepsDateLabel.textContent = 'Date:';
-    
-    const stepsDateDefaultBtn = document.createElement('button');
-    stepsDateDefaultBtn.className = 'date-default-btn';
-    stepsDateDefaultBtn.textContent = 'Today';
-    stepsDateDefaultBtn.onclick = (e) => {
-        e.preventDefault();
-        stepsDateInput.valueAsDate = new Date();
-    };
-    
-    stepsDateContainer.appendChild(stepsDateLabel);
-    stepsDateContainer.appendChild(stepsDateInput);
-    stepsDateContainer.appendChild(stepsDateDefaultBtn);
-    
-    // Insert date selection container after the steps input
-    stepsModalBody.insertBefore(stepsDateContainer, stepsInput.nextSibling);
-    
-    // Add a container for date selection in weight modal
-    const weightDateContainer = document.createElement('div');
-    weightDateContainer.className = 'date-selection-container';
-    
-    const weightDateLabel = document.createElement('label');
-    weightDateLabel.htmlFor = 'weight-date-input';
-    weightDateLabel.textContent = 'Date:';
-    
-    const weightDateDefaultBtn = document.createElement('button');
-    weightDateDefaultBtn.className = 'date-default-btn';
-    weightDateDefaultBtn.textContent = 'Today';
-    weightDateDefaultBtn.onclick = (e) => {
-        e.preventDefault();
-        weightDateInput.valueAsDate = new Date();
-    };
-    
-    weightDateContainer.appendChild(weightDateLabel);
-    weightDateContainer.appendChild(weightDateInput);
-    weightDateContainer.appendChild(weightDateDefaultBtn);
-    
-    // Insert date selection container after the weight input
-    const weightInputContainer = document.querySelector('.weight-input-container');
-    weightModalBody.insertBefore(weightDateContainer, weightInputContainer.nextSibling);
     
     // Chart Elements
     const progressRing = document.getElementById('progress-ring');
@@ -143,8 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
         checkAndUpdateDate();
         renderHomeScreen();
         showScreen('home-screen'); // Default to home screen
-        
-        // Create awards section in history screen if it doesn't exist
     }
     
     // Load app state from localStorage
@@ -156,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Ensure all expected properties exist in loaded appState
             if (!appState.bestStreak) appState.bestStreak = 0;
             if (!appState.weightGoal) appState.weightGoal = null;
+            if (!appState.awards) appState.awards = [];
         }
     }
     
@@ -169,9 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
         
         if (appState.lastUpdateDate !== today) {
-            // If there was a previous day recorded, we don't need to save it here
-            // since steps are now saved by date specifically
-            
             // Find today's steps if they exist
             const todayData = appState.stepsData.find(entry => entry.date === today);
             
@@ -219,19 +151,70 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Button Clicks
         addStepsBtn.addEventListener('click', () => {
-            stepsDateInput.valueAsDate = new Date(); // Default to today
-            stepsInput.value = appState.todaySteps; // Default to current steps
+            // Set date input to today
+            const stepsDateInput = document.getElementById('steps-date-input');
+            if (stepsDateInput) {
+                stepsDateInput.valueAsDate = new Date();
+            }
+            
+            // Set steps input to today's steps
+            const stepsInput = document.getElementById('steps-input');
+            if (stepsInput) {
+                stepsInput.value = appState.todaySteps; // Default to current steps
+            }
+            
+            // Add Today button event listener
+            const stepsTodayBtn = document.getElementById('steps-today-btn');
+            if (stepsTodayBtn) {
+                stepsTodayBtn.addEventListener('click', () => {
+                    stepsDateInput.valueAsDate = new Date();
+                });
+            }
+            
+            // Re-add event listener to the save button
+            const saveStepsBtn = document.getElementById('save-steps-btn');
+            if (saveStepsBtn) {
+                saveStepsBtn.removeEventListener('click', saveSteps);
+                saveStepsBtn.addEventListener('click', saveSteps);
+            }
+            
             showModal(addStepsModal);
         });
         
         addWeightBtn.addEventListener('click', () => {
-            weightDateInput.valueAsDate = new Date(); // Default to today
+            // Set date input to today
+            const weightDateInput = document.getElementById('weight-date-input');
+            if (weightDateInput) {
+                weightDateInput.valueAsDate = new Date();
+            }
             
-            // If there's recent weight data, set as default
-            if (appState.weightData.length > 0) {
-                const latestWeight = appState.weightData[appState.weightData.length - 1];
-                weightInput.value = latestWeight.weight;
-                weightUnitSelect.value = latestWeight.unit;
+            // If there's recent weight data, use it as default
+            const weightInput = document.getElementById('weight-input');
+            
+            if (weightInput) {
+                if (appState.weightData.length > 0) {
+                    const latestWeight = appState.weightData.sort((a, b) => 
+                        new Date(b.date) - new Date(a.date)
+                    )[0];
+                    weightInput.value = latestWeight.weight;
+                } else {
+                    weightInput.value = '';
+                }
+            }
+            
+            // Add Today button event listener
+            const weightTodayBtn = document.getElementById('weight-today-btn');
+            if (weightTodayBtn) {
+                weightTodayBtn.addEventListener('click', () => {
+                    weightDateInput.valueAsDate = new Date();
+                });
+            }
+            
+            // Re-add event listener to the save button
+            const saveWeightBtn = document.getElementById('save-weight-btn');
+            if (saveWeightBtn) {
+                saveWeightBtn.removeEventListener('click', saveWeight);
+                saveWeightBtn.addEventListener('click', saveWeight);
             }
             
             showModal(addWeightModal);
@@ -254,10 +237,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // Save Buttons
-        saveStepsBtn.addEventListener('click', saveSteps);
-        saveWeightBtn.addEventListener('click', saveWeight);
-        saveGoalBtn.addEventListener('click', saveGoal);
+        // Save Goal Button
+        const saveGoalBtn = document.getElementById('save-goal-btn');
+        if (saveGoalBtn) {
+            saveGoalBtn.addEventListener('click', saveGoal);
+        }
         
         // Goal Presets
         presetButtons.forEach(btn => {
@@ -278,6 +262,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderHistoryChart(filter);
             });
         });
+        
+        // Toggle Goal Line in Weight Chart
+        if (showGoalLineToggle) {
+            showGoalLineToggle.addEventListener('change', () => {
+                renderWeightChart(showGoalLineToggle.checked);
+            });
+        }
+        
+        // Set up Weight Goal button
+        const setWeightGoalBtn = document.getElementById('set-weight-goal-btn');
+        if (setWeightGoalBtn) {
+            setWeightGoalBtn.addEventListener('click', () => {
+                showWeightGoalModal();
+            });
+        }
+    }
+    
+    // Show Weight Goal Modal
+    function showWeightGoalModal() {
+        const weightGoalModal = document.getElementById('weight-goal-modal');
+        if (!weightGoalModal) return;
+        
+        const weightGoalInput = document.getElementById('weight-goal-input');
+        
+        if (appState.weightGoal) {
+            weightGoalInput.value = appState.weightGoal.target;
+        } else if (appState.weightData.length > 0) {
+            // Leave it blank
+            weightGoalInput.value = '';
+        }
+        
+        // Add event listener for save button
+        const saveWeightGoalBtn = document.getElementById('save-weight-goal-btn');
+        if (saveWeightGoalBtn) {
+            saveWeightGoalBtn.removeEventListener('click', saveWeightGoal);
+            saveWeightGoalBtn.addEventListener('click', saveWeightGoal);
+        }
+        
+        showModal(weightGoalModal);
     }
     
     // Show a specific screen
@@ -312,14 +335,21 @@ document.addEventListener('DOMContentLoaded', () => {
         addStepsModal.classList.add('hidden');
         addWeightModal.classList.add('hidden');
         setGoalModal.classList.add('hidden');
+        
         const weightGoalModal = document.getElementById('weight-goal-modal');
-    if (weightGoalModal) weightGoalModal.classList.add('hidden');
-    const confirmModal = document.getElementById('confirm-modal');
-    if (confirmModal) confirmModal.classList.add('hidden');
+        if (weightGoalModal) weightGoalModal.classList.add('hidden');
+        
+        const confirmModal = document.getElementById('confirm-modal');
+        if (confirmModal) confirmModal.classList.add('hidden');
     }
     
     // Save steps data
     function saveSteps() {
+        const stepsInput = document.getElementById('steps-input');
+        const stepsDateInput = document.getElementById('steps-date-input');
+        
+        if (!stepsInput || !stepsDateInput) return;
+        
         const steps = parseInt(stepsInput.value);
         if (isNaN(steps) || steps < 0) {
             alert('Please enter a valid step count.');
@@ -356,8 +386,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (steps >= appState.stepGoal) {
                 appState.streakCount++;
                 
-                // Check if this is a new record streak
-                checkAndUpdateStreakAward();
+                // Update best streak if needed
+                if (appState.streakCount > appState.bestStreak) {
+                    appState.bestStreak = appState.streakCount;
+                }
             } else {
                 appState.streakCount = 0; // Reset streak if goal not met
             }
@@ -369,7 +401,6 @@ document.addEventListener('DOMContentLoaded', () => {
         saveAppState();
         renderHomeScreen();
         hideAllModals();
-        stepsInput.value = '';
     }
     
     // Calculate current streak based on sequential days where goal was met
@@ -413,36 +444,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return bestStreak;
     }
     
-    // Check if current streak is a record and update awards
-    function checkAndUpdateStreakAward() {
-        // Find existing streak award if any
-        const streakAward = appState.awards.find(award => award.type === 'streak');
-        
-        if (!streakAward && appState.streakCount >= 3) {
-            // First time getting a streak of 3+ days
-            appState.awards.push({
-                type: 'streak',
-                value: appState.streakCount,
-                date: new Date().toISOString(),
-                text: `${appState.streakCount} day streak!`
-            });
-        } else if (streakAward && appState.streakCount > streakAward.value) {
-            // New streak record
-            streakAward.value = appState.streakCount;
-            streakAward.date = new Date().toISOString();
-            streakAward.text = `${appState.streakCount} day streak!`;
-        }
-    }
-    
     // Save weight data
     function saveWeight() {
+        const weightInput = document.getElementById('weight-input');
+        const weightDateInput = document.getElementById('weight-date-input');
+        
+        if (!weightInput || !weightDateInput) return;
+        
         const weight = parseFloat(weightInput.value);
         if (isNaN(weight) || weight <= 0) {
             alert('Please enter a valid weight.');
             return;
         }
-        
-        const unit = weightUnitSelect.value;
         
         // Get selected date or default to today
         let selectedDate = weightDateInput.value;
@@ -456,70 +469,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (existingEntryIndex !== -1) {
             // Update existing entry
             appState.weightData[existingEntryIndex].weight = weight;
-            appState.weightData[existingEntryIndex].unit = unit;
         } else {
             // Add new entry
             appState.weightData.push({
                 date: selectedDate,
-                weight: weight,
-                unit: unit
+                weight: weight
             });
         }
-        
-        appState.weightUnit = unit; // Save selected unit
-        
-        // Check if this is first weight entry or if we reached weight goal
-        checkWeightAwards(weight, unit);
         
         saveAppState();
         renderWeightScreen();
         hideAllModals();
-        weightInput.value = '';
-    }
-    
-    // Check if weight goals are met for awards
-    function checkWeightAwards(weight, unit) {
-        if (appState.weightData.length === 1) {
-            // First weight entry - add welcome award
-            appState.awards.push({
-                type: 'first_weight',
-                date: new Date().toISOString(),
-                text: 'First weight entry! Keep tracking for insights.'
-            });
-            return;
-        }
-        
-        // Check if weight goal is met
-        if (appState.weightGoal) {
-            const goalUnit = appState.weightGoal.unit;
-            let weightInGoalUnit = weight;
-            
-            // Convert weight to goal unit if needed
-            if (unit !== goalUnit) {
-                if (unit === 'kg' && goalUnit === 'lbs') {
-                    weightInGoalUnit = weight * 2.20462;
-                } else if (unit === 'lbs' && goalUnit === 'kg') {
-                    weightInGoalUnit = weight / 2.20462;
-                }
-            }
-            
-            const isWeightLossGoal = appState.weightGoal.target < appState.weightGoal.initial;
-            
-            if ((isWeightLossGoal && weightInGoalUnit <= appState.weightGoal.target) ||
-                (!isWeightLossGoal && weightInGoalUnit >= appState.weightGoal.target)) {
-                
-                // Goal reached!
-                const existingGoalAward = appState.awards.find(award => award.type === 'weight_goal');
-                
-                if (!existingGoalAward) {
-                    appState.awards.push({
-                        type: 'weight_goal',
-                        date: new Date().toISOString(),
-                        text: `Weight goal reached! ${appState.weightGoal.target} ${goalUnit}`
-                    });
-                }
-            }
-        }
     }
     
     // Save goal setting
@@ -530,21 +490,48 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // If this is a new goal that's higher than previous, add award
-        if (goal > appState.stepGoal) {
-            appState.awards.push({
-                type: 'new_goal',
-                value: goal,
-                date: new Date().toISOString(),
-                text: `New goal set: ${goal.toLocaleString()} steps`
-            });
-        }
-        
         appState.stepGoal = goal;
         saveAppState();
         renderHomeScreen();
         hideAllModals();
         goalInput.value = '';
+    }
+    
+    // Save Weight Goal
+    function saveWeightGoal() {
+        const goalInput = document.getElementById('weight-goal-input');
+        
+        if (!goalInput) return;
+        
+        const targetWeight = parseFloat(goalInput.value);
+        if (isNaN(targetWeight) || targetWeight <= 0) {
+            alert('Please enter a valid weight goal.');
+            return;
+        }
+        
+        // If we don't have weight data, we can't determine if this is a loss or gain goal
+        if (appState.weightData.length === 0) {
+            alert('Please record your current weight before setting a goal.');
+            return;
+        }
+        
+        // Get latest weight (most recent entry)
+        const sortedWeights = [...appState.weightData]
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        const initialEntry = sortedWeights[0];
+        let initialWeight = initialEntry.weight;
+        
+        // Save weight goal
+        appState.weightGoal = {
+            target: targetWeight,
+            initial: initialWeight,
+            date: new Date().toISOString()
+        };
+        
+        saveAppState();
+        renderWeightScreen();
+        hideAllModals();
     }
     
     // Render Home Screen
@@ -561,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render History Screen
     function renderHistoryScreen() {
         // Update stats cards
-        historyGoalEl.textContent = `${appState.stepGoal.toLocaleString()} steps`;
+        historyGoalEl.textContent = appState.stepGoal.toLocaleString();
         
         // Make sure we have a best streak in state
         if (!appState.bestStreak) {
@@ -573,81 +560,43 @@ document.addEventListener('DOMContentLoaded', () => {
         // Calculate best day
         let bestDay = 0;
         if (appState.stepsData.length > 0) {
-            bestDay = Math.max(...appState.stepsData.map(entry => entry.steps), appState.todaySteps);
+            bestDay = Math.max(...appState.stepsData.map(entry => entry.steps), 0);
         }
-        bestDayEl.textContent = `${bestDay.toLocaleString()} steps`;
+        bestDayEl.textContent = bestDay.toLocaleString();
         
         // Calculate average
         let average = 0;
         if (appState.stepsData.length > 0) {
-            const sum = appState.stepsData.reduce((total, entry) => total + entry.steps, 0) + appState.todaySteps;
-            average = Math.round(sum / (appState.stepsData.length + 1));
+            const sum = appState.stepsData.reduce((total, entry) => total + entry.steps, 0);
+            average = Math.round(sum / (appState.stepsData.length));
         }
-        averageDayEl.textContent = `${average.toLocaleString()} steps`;
+        averageDayEl.textContent = average.toLocaleString();
         
         renderHistoryChart(currentTimeframe);
         renderStepsHistoryList();
-    }
-    
-    // Render Awards list
-    function renderAwards() {
-        const awardsList = document.getElementById('awards-list');
-        if (!awardsList) return;
-        
-        awardsList.innerHTML = '';
-        
-        if (appState.awards.length === 0) {
-            const emptyMessage = document.createElement('li');
-            emptyMessage.className = 'empty-message';
-            emptyMessage.textContent = 'Complete goals to earn awards!';
-            awardsList.appendChild(emptyMessage);
-            return;
-        }
-        
-        // Sort awards by date, newest first
-        const sortedAwards = [...appState.awards].sort((a, b) => 
-            new Date(b.date) - new Date(a.date)
-        );
-        
-        sortedAwards.forEach((award, index) => {
-            const li = document.createElement('li');
-            li.className = 'award-item';
-            
-            const awardDate = new Date(award.date);
-            const dateText = awardDate.toLocaleDateString();
-            
-            li.innerHTML = `
-                <div class="award-content">
-                    <span class="award-text">${award.text}</span>
-                    <span class="award-date">${dateText}</span>
-                </div>
-                <button class="award-delete" data-index="${index}">&times;</button>
-            `;
-            
-            awardsList.appendChild(li);
-        });
     }
     
     // Render Weight Screen
     function renderWeightScreen() {
         // Update current weight display
         if (appState.weightData.length > 0) {
-            // Sort by date and get the latest entry
             const sortedData = [...appState.weightData].sort((a, b) => 
                 new Date(b.date) - new Date(a.date)
             );
             
             const latestWeight = sortedData[0];
             currentWeightEl.textContent = latestWeight.weight;
-            weightUnitEl.textContent = latestWeight.unit;
-            weightUnitSelect.value = latestWeight.unit;
         } else {
             currentWeightEl.textContent = '--';
-            weightUnitEl.textContent = appState.weightUnit;
-            weightUnitSelect.value = appState.weightUnit;
-            updateWeightStats();
         }
-        renderWeightChart();
+        
+        // Update weight stats
+        updateWeightStats();
+        
+        // Show goal line based on toggle state
+        const showGoalLine = showGoalLineToggle ? showGoalLineToggle.checked : true;
+        renderWeightChart(showGoalLine);
+        
         renderWeightHistoryList();
     }
     
@@ -799,13 +748,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Find steps for this date
             const stepsEntry = appState.stepsData.find(entry => entry.date === dateStr);
-            const todayStr = today.toISOString().split('T')[0];
             
-            // Handle special case for today
-            if (dateStr === todayStr) {
-                result.values.push(appState.todaySteps);
-                result.colors.push(appState.todaySteps >= appState.stepGoal ? '#34C759' : '#007AFF');
-            } else if (stepsEntry) {
+            if (stepsEntry) {
                 result.values.push(stepsEntry.steps);
                 result.colors.push(stepsEntry.steps >= appState.stepGoal ? '#34C759' : '#007AFF');
             } else {
@@ -824,17 +768,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Create a copy of steps data for manipulation
         const stepsDataCopy = [...appState.stepsData];
-        
-        // Add today's steps if not already in data
-        const today = new Date().toISOString().split('T')[0];
-        const todayExists = stepsDataCopy.some(entry => entry.date === today);
-        
-        if (!todayExists && appState.todaySteps > 0) {
-            stepsDataCopy.push({
-                date: today,
-                steps: appState.todaySteps
-            });
-        }
         
         // Sort by date, most recent first
         stepsDataCopy.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -867,7 +800,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Render Weight Chart
-    function renderWeightChart() {
+    function renderWeightChart(showGoalLine = true) {
         // If chart already exists, destroy it
         if (weightChartInstance) {
             weightChartInstance.destroy();
@@ -898,36 +831,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const labels = [];
         const data = [];
-        const goalLine = [];
         
         // Process weight entries
         sortedWeights.forEach(entry => {
             labels.push(formatShortDate(entry.date));
-            
-            // Convert weight to current unit if needed
-            let weightValue = entry.weight;
-            if (entry.unit !== appState.weightUnit) {
-                if (entry.unit === 'kg' && appState.weightUnit === 'lbs') {
-                    weightValue = weightValue * 2.20462;
-                } else if (entry.unit === 'lbs' && appState.weightUnit === 'kg') {
-                    weightValue = weightValue / 2.20462;
-                }
-            }
-            
-            data.push(weightValue);
-            
-            // Add goal line data if weight goal exists
-            if (appState.weightGoal) {
-                let goalValue = appState.weightGoal.target;
-                if (appState.weightGoal.unit !== appState.weightUnit) {
-                    if (appState.weightGoal.unit === 'kg' && appState.weightUnit === 'lbs') {
-                        goalValue = goalValue * 2.20462;
-                    } else if (appState.weightGoal.unit === 'lbs' && appState.weightUnit === 'kg') {
-                        goalValue = goalValue / 2.20462;
-                    }
-                }
-                goalLine.push(goalValue);
-            }
+            data.push(entry.weight);
         });
         
         // Create datasets array
@@ -938,16 +846,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 fill: false,
                 borderColor: '#007AFF',
                 backgroundColor: '#007AFF',
-                tension: 0.1,
-                pointRadius: 4
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6
             }
         ];
         
-        // Add goal line if it exists
-        if (appState.weightGoal && goalLine.length > 0) {
+        // Add goal line if it exists and option is enabled
+        if (appState.weightGoal && showGoalLine) {
+            let goalValue = appState.weightGoal.target;
+            
+            // Add goal line
             datasets.push({
                 label: 'Goal',
-                data: goalLine,
+                data: Array(data.length).fill(goalValue),
                 fill: false,
                 borderColor: '#34C759',
                 backgroundColor: '#34C759',
@@ -969,7 +881,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 maintainAspectRatio: false,
                 scales: {
                     y: {
-                        beginAtZero: false,
                         grid: {
                             display: true,
                             color: 'rgba(0, 0, 0, 0.1)'
@@ -982,148 +893,82 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 },
                 plugins: {
+                    legend: {
+                        display: false
+                    },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return context.dataset.label + ': ' + context.raw.toFixed(1) + ' ' + appState.weightUnit;
+                                return context.dataset.label + ': ' + context.raw.toFixed(1) + ' lb';
                             }
                         }
                     }
                 }
             }
         });
-        
-        // Create or update weight stat cards
-        updateWeightStats();
     }
     
     // Update weight statistics
     function updateWeightStats() {
-        if (appState.weightData.length < 2) return; // Need at least two data points
-        
-        // Get or create weight stats container
-        let statsContainer = document.getElementById('weight-stats-container');
-        if (!statsContainer) {
-            statsContainer = document.createElement('div');
-            statsContainer.id = 'weight-stats-container';
-            statsContainer.className = 'stats-grid';
-            
-            // Insert before weight history
-            const historyHeader = weightScreen.querySelector('.history-list-header');
-            weightScreen.insertBefore(statsContainer, historyHeader);
-        }
-        
-        // Clear existing stats
-        statsContainer.innerHTML = '';
+        if (appState.weightData.length < 1) return; // Need at least one data point
         
         // Sort data by date
         const sortedWeights = [...appState.weightData]
-            .sort((a, b) => new Date(a.date) - new Date(b.date));
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
         
-        // Convert all weights to current unit
-        const normalizedWeights = sortedWeights.map(entry => {
-            let weight = entry.weight;
-            if (entry.unit !== appState.weightUnit) {
-                if (entry.unit === 'kg' && appState.weightUnit === 'lbs') {
-                    weight = weight * 2.20462;
-                } else if (entry.unit === 'lbs' && appState.weightUnit === 'kg') {
-                    weight = weight / 2.20462;
-                }
-            }
-            return {
-                date: entry.date,
-                weight: weight
-            };
-        });
-        
-        // Initial and latest weight
-        const initialWeight = normalizedWeights[0].weight;
-        const latestWeight = normalizedWeights[normalizedWeights.length - 1].weight;
-        
-        // Calculate overall change
-        const overallChange = latestWeight - initialWeight;
-        const overallChangePercent = (overallChange / initialWeight) * 100;
-        
-        // Calculate last week change if enough data
-        let lastWeekChange = null;
-        let lastWeekChangePercent = null;
-        
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        const oneWeekAgoStr = oneWeekAgo.toISOString().split('T')[0];
-        
-        // Find closest entry to one week ago
-        const weekAgoEntries = normalizedWeights.filter(entry => entry.date <= oneWeekAgoStr);
-        if (weekAgoEntries.length > 0) {
-            const weekAgoWeight = weekAgoEntries[weekAgoEntries.length - 1].weight;
-            lastWeekChange = latestWeight - weekAgoWeight;
-            lastWeekChangePercent = (lastWeekChange / weekAgoWeight) * 100;
-        }
-        
-        // Calculate progress to goal
-        let goalProgress = null;
+        // Set weight goal display
         if (appState.weightGoal) {
             let goalWeight = appState.weightGoal.target;
-            // Convert goal to current unit if needed
-            if (appState.weightGoal.unit !== appState.weightUnit) {
-                if (appState.weightGoal.unit === 'kg' && appState.weightUnit === 'lbs') {
-                    goalWeight = goalWeight * 2.20462;
-                } else if (appState.weightGoal.unit === 'lbs' && appState.weightUnit === 'kg') {
-                    goalWeight = goalWeight / 2.20462;
+            weightGoalValue.textContent = `${goalWeight.toFixed(1)} lb`;
+            
+            // Calculate progress percentage
+            const latestWeight = sortedWeights[0].weight;
+            let initialWeight = appState.weightGoal.initial;
+            
+            const isWeightLossGoal = goalWeight < initialWeight;
+            
+            let progressPct = 0;
+            if (isWeightLossGoal) {
+                // Weight loss goal
+                if (latestWeight <= goalWeight) {
+                    progressPct = 100; // Goal reached or exceeded
+                } else {
+                    progressPct = ((initialWeight - latestWeight) / (initialWeight - goalWeight)) * 100;
+                }
+            } else {
+                // Weight gain goal
+                if (latestWeight >= goalWeight) {
+                    progressPct = 100; // Goal reached or exceeded
+                } else {
+                    progressPct = ((latestWeight - initialWeight) / (goalWeight - initialWeight)) * 100;
                 }
             }
             
-            const totalChange = goalWeight - initialWeight;
-            const currentChange = latestWeight - initialWeight;
+            // Ensure progress is between 0-100%
+            progressPct = Math.max(0, Math.min(100, progressPct));
             
-            if (Math.abs(totalChange) > 0) { // Avoid division by zero
-                goalProgress = (currentChange / totalChange) * 100;
-                // Cap at 100% and handle negative progress
-                goalProgress = Math.min(100, Math.max(0, goalProgress));
-            }
+            weightProgressValue.textContent = `${Math.round(progressPct)}%`;
+        } else {
+            weightGoalValue.textContent = 'Not set';
+            weightProgressValue.textContent = `0%`;
         }
         
-        // Create stat cards
-        createStatCard(statsContainer, 'overall change', 
-            `${Math.abs(overallChange).toFixed(1)} ${appState.weightUnit} ${overallChange >= 0 ? '↑' : '↓'}`,
-            overallChange > 0 ? 'danger-value' : 'success-value');
+        // Calculate weekly change (last change between two points)
+        if (sortedWeights.length >= 2) {
+            const latestWeight = sortedWeights[0].weight;
+            const previousWeight = sortedWeights[1].weight;
             
-        if (lastWeekChange !== null) {
-            createStatCard(statsContainer, 'last 7 days', 
-                `${Math.abs(lastWeekChange).toFixed(1)} ${appState.weightUnit} ${lastWeekChange >= 0 ? '↑' : '↓'}`,
-                lastWeekChange > 0 ? 'danger-value' : 'success-value');
+            const weightChange = latestWeight - previousWeight;
+            const absChange = Math.abs(weightChange).toFixed(1);
+            const changeDirection = weightChange >= 0 ? '↑' : '↓';
+            const valueClass = weightChange > 0 ? 'danger-value' : 'green-value';
+            
+            weightChangeValue.textContent = `${absChange} lb ${changeDirection}`;
+            weightChangeValue.className = valueClass;
+        } else {
+            weightChangeValue.textContent = `0 lb`;
+            weightChangeValue.className = 'green-value';
         }
-        
-        if (goalProgress !== null) {
-            createStatCard(statsContainer, 'goal progress', 
-                `${Math.round(goalProgress)}%`,
-                'default-value');
-        }
-        
-        // If we have a goal but no goal progress stat, create a set goal card
-        if (goalProgress === null && appState.weightGoal === null) {
-            createStatCard(statsContainer, 'weight goal', 
-                'Set a goal',
-                'default-value');
-        }
-    }
-    
-    // Create a stat card and append to container
-    function createStatCard(container, label, value, valueClass = 'default-value') {
-        const card = document.createElement('div');
-        card.className = 'stat-card';
-        
-        const labelEl = document.createElement('div');
-        labelEl.className = 'label';
-        labelEl.textContent = label;
-        
-        const valueEl = document.createElement('div');
-        valueEl.className = valueClass;
-        valueEl.textContent = value;
-        
-        card.appendChild(labelEl);
-        card.appendChild(valueEl);
-        container.appendChild(card);
     }
     
     // Render Weight History List
@@ -1145,8 +990,8 @@ document.addEventListener('DOMContentLoaded', () => {
             historyDate.textContent = formatDate(entry.date);
             
             const historyValue = document.createElement('div');
-            historyValue.className = 'default-value';
-            historyValue.textContent = `${entry.weight} ${entry.unit}`;
+            historyValue.className = 'blue-value';
+            historyValue.textContent = `${entry.weight} lb`;
             
             historyItem.appendChild(historyDate);
             historyItem.appendChild(historyValue);
@@ -1162,525 +1007,92 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Add Weight Goal Setting Functionality
-    // Completely replace the addWeightGoalSetting function with this:
-function addWeightGoalSetting() {
-    // Create weight goal modal if it doesn't exist
-    if (!document.getElementById('weight-goal-modal')) {
-        const weightGoalModal = document.createElement('div');
-        weightGoalModal.id = 'weight-goal-modal';
-        weightGoalModal.className = 'modal hidden';
+    // Add clear history functionality
+    function setupClearHistoryButton() {
+        const clearDataBtn = document.getElementById('clear-data-btn');
         
-        weightGoalModal.innerHTML = `
-            <div class="modal-header">
-                <h2>Set Weight Goal</h2>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <label for="weight-goal-input">Target Weight:</label>
-                <div class="weight-input-container">
-                    <input type="number" id="weight-goal-input" min="0" step="0.1" placeholder="Enter target weight">
-                    <select id="weight-goal-unit-select">
-                        <option value="lbs">lbs</option>
-                        <option value="kg">kg</option>
-                    </select>
-                </div>
-                <button class="primary-btn full-width" id="save-weight-goal-btn">Save Goal</button>
-            </div>
-        `;
-        
-        // Add to modal overlay
-        modalOverlay.appendChild(weightGoalModal);
-        
-        // Add event listeners
-        const closeBtn = weightGoalModal.querySelector('.close-btn');
-        closeBtn.addEventListener('click', () => {
-            hideAllModals();
-        });
-        
-        // Save button listener
-        const saveWeightGoalBtn = document.getElementById('save-weight-goal-btn');
-        if (saveWeightGoalBtn) {
-            saveWeightGoalBtn.addEventListener('click', saveWeightGoal);
+        if (clearDataBtn) {
+            clearDataBtn.addEventListener('click', () => {
+                showConfirmModal('Are you sure you want to clear all history data? This cannot be undone.', () => {
+                    // Preserve current step goal and best streak
+                    const stepGoal = appState.stepGoal;
+                    const bestStreak = appState.bestStreak;
+                    
+                    // Reset app state
+                    appState = {
+                        todaySteps: 0,
+                        stepGoal: stepGoal,
+                        streakCount: 0,
+                        bestStreak: bestStreak,
+                        lastUpdateDate: new Date().toISOString().split('T')[0],
+                        stepsData: [],
+                        weightData: [],
+                        weightGoal: null,
+                        awards: []
+                    };
+                    
+                    saveAppState();
+                    
+                    // Refresh all screens
+                    renderHomeScreen();
+                    renderHistoryScreen();
+                    renderWeightScreen();
+                    
+                    showToast('History data cleared successfully');
+                });
+            });
         }
     }
     
-    // Set button click listener
-    const weightGoalBtn = document.getElementById('set-weight-goal-btn');
-    if (weightGoalBtn) {
-        weightGoalBtn.addEventListener('click', () => {
-            // If we have a goal, pre-fill form
-            const weightGoalInput = document.getElementById('weight-goal-input');
-            const weightGoalUnitSelect = document.getElementById('weight-goal-unit-select');
-            
-            if (appState.weightGoal) {
-                weightGoalInput.value = appState.weightGoal.target;
-                weightGoalUnitSelect.value = appState.weightGoal.unit;
-            } else if (appState.weightData.length > 0) {
-                // Default to latest weight unit
-                weightGoalUnitSelect.value = appState.weightUnit;
-            }
-            
-            // Make sure only this modal is showing
+    // Helper function to show confirmation modal
+    function showConfirmModal(message, confirmCallback) {
+        const confirmModal = document.getElementById('confirm-modal');
+        const confirmMessage = document.getElementById('confirm-message');
+        const confirmBtn = document.getElementById('confirm-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        
+        if (!confirmModal || !confirmMessage || !confirmBtn || !cancelBtn) return;
+        
+        confirmMessage.textContent = message;
+        
+        // Set up event handlers
+        const handleConfirm = () => {
+            confirmCallback();
             hideAllModals();
-            modalOverlay.classList.remove('hidden');
-            document.getElementById('weight-goal-modal').classList.remove('hidden');
-        });
-    }
-}
-    
-    // Save Weight Goal
-    function saveWeightGoal() {
-        const goalInput = document.getElementById('weight-goal-input');
-        const unitSelect = document.getElementById('weight-goal-unit-select');
-        
-        const targetWeight = parseFloat(goalInput.value);
-        if (isNaN(targetWeight) || targetWeight <= 0) {
-            alert('Please enter a valid weight goal.');
-            return;
-        }
-        
-        const unit = unitSelect.value;
-        
-        // If we don't have weight data, we can't determine if this is a loss or gain goal
-        if (appState.weightData.length === 0) {
-            alert('Please record your current weight before setting a goal.');
-            return;
-        }
-        
-        // Get initial weight (first entry)
-        const sortedWeights = [...appState.weightData]
-            .sort((a, b) => new Date(a.date) - new Date(b.date));
-        
-        const initialEntry = sortedWeights[0];
-        let initialWeight = initialEntry.weight;
-        
-        // Convert initial weight to goal unit if needed
-        if (initialEntry.unit !== unit) {
-            if (initialEntry.unit === 'kg' && unit === 'lbs') {
-                initialWeight = initialWeight * 2.20462;
-            } else if (initialEntry.unit === 'lbs' && unit === 'kg') {
-                initialWeight = initialWeight / 2.20462;
-            }
-        }
-        
-        // Save weight goal
-        appState.weightGoal = {
-            target: targetWeight,
-            unit: unit,
-            initial: initialWeight,
-            date: new Date().toISOString()
+            // Remove event listeners
+            confirmBtn.removeEventListener('click', handleConfirm);
+            cancelBtn.removeEventListener('click', handleCancel);
         };
         
-        // Add a new award for setting a goal
-        appState.awards.push({
-            type: 'weight_goal_set',
-            date: new Date().toISOString(),
-            text: `Weight goal set: ${targetWeight} ${unit}`
-        });
+        const handleCancel = () => {
+            hideAllModals();
+            // Remove event listeners
+            confirmBtn.removeEventListener('click', handleConfirm);
+            cancelBtn.removeEventListener('click', handleCancel);
+        };
         
-        saveAppState();
-        renderWeightScreen();
-        hideAllModals();
-        goalInput.value = '';
+        confirmBtn.addEventListener('click', handleConfirm);
+        cancelBtn.addEventListener('click', handleCancel);
+        
+        showModal(confirmModal);
     }
     
-    // Add ability to delete history entries
-    function addDeletionFunctionality() {
-        // Add delete buttons to steps history
-        stepsHistoryList.addEventListener('click', function(e) {
-            // Check if delete button was clicked
-            if (e.target.classList.contains('delete-entry')) {
-                const date = e.target.getAttribute('data-date');
-                
-                // Confirm deletion
-                if (confirm('Are you sure you want to delete this entry?')) {
-                    // Remove entry from stepsData
-                    appState.stepsData = appState.stepsData.filter(entry => entry.date !== date);
-                    
-                    // If today's entry was deleted, reset todaySteps
-                    const today = new Date().toISOString().split('T')[0];
-                    if (date === today) {
-                        appState.todaySteps = 0;
-                    }
-                    
-                    // Recalculate streak
-                    calculateStreak();
-                    
-                    saveAppState();
-                    renderHistoryScreen();
-                    renderHomeScreen();
-                }
-            }
-        });
+    // Helper function to show toast message
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast-notification');
+        if (!toast) return;
         
-        // Add delete buttons to weight history
-        weightHistoryList.addEventListener('click', function(e) {
-            // Check if delete button was clicked
-            if (e.target.classList.contains('delete-entry')) {
-                const date = e.target.getAttribute('data-date');
-                
-                // Confirm deletion
-                if (confirm('Are you sure you want to delete this entry?')) {
-                    // Remove entry from weightData
-                    appState.weightData = appState.weightData.filter(entry => entry.date !== date);
-                    
-                    saveAppState();
-                    renderWeightScreen();
-                }
-            }
-        });
+        toast.textContent = message;
+        toast.className = 'toast';
+        toast.classList.add(type);
+        toast.classList.add('visible');
+        
+        setTimeout(() => {
+            toast.classList.remove('visible');
+        }, 3000);
     }
     
-    // Export data as JSON
-    function setupDataExport() {
-        // Create export button in history screen
-        const exportBtn = document.createElement('button');
-        exportBtn.id = 'export-data-btn';
-        exportBtn.className = 'secondary-btn';
-        exportBtn.textContent = 'Export Data';
-        
-        // Add to history screen
-        historyScreen.appendChild(exportBtn);
-        
-        // Add event listener
-        exportBtn.addEventListener('click', () => {
-            const dataStr = JSON.stringify(appState, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            const exportFilename = 'spark-data-' + new Date().toISOString().split('T')[0] + '.json';
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFilename);
-            linkElement.click();
-        });
-    }
-    
-    // Import data from JSON
-    function setupDataImport() {
-        // Create import button in history screen
-        const importBtn = document.createElement('button');
-        importBtn.id = 'import-data-btn';
-        importBtn.className = 'secondary-btn';
-        importBtn.textContent = 'Import Data';
-        
-        // Add to history screen, next to export button
-        const exportBtn = document.getElementById('export-data-btn');
-        if (exportBtn) {
-            exportBtn.parentElement.insertBefore(importBtn, exportBtn.nextSibling);
-        } else {
-            historyScreen.appendChild(importBtn);
-        }
-        
-        // Create file input (hidden)
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.id = 'import-file-input';
-        fileInput.accept = '.json';
-        fileInput.style.display = 'none';
-        document.body.appendChild(fileInput);
-        
-        // Add event listeners
-        importBtn.addEventListener('click', () => {
-            fileInput.click();
-        });
-        
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const importedData = JSON.parse(event.target.result);
-                    
-                    // Validate data structure
-                    if (!importedData.stepsData || !importedData.weightData || !Array.isArray(importedData.stepsData) || !Array.isArray(importedData.weightData)) {
-                        throw new Error('Invalid data format');
-                    }
-                    
-                    // Ask for confirmation
-                    if (confirm('This will replace your current data. Are you sure you want to continue?')) {
-                        // Backup current data
-                        const backupData = JSON.stringify(appState);
-                        localStorage.setItem(APP_STATE_KEY + '_backup', backupData);
-                        
-                        // Apply imported data
-                        appState = importedData;
-                        
-                        // Ensure all expected properties exist
-                        if (!appState.awards) appState.awards = [];
-                        if (!appState.weightGoal) appState.weightGoal = null;
-                        
-                        // Update today's steps
-                        checkAndUpdateDate();
-                        
-                        saveAppState();
-                        
-                        // Refresh UI
-                        renderHomeScreen();
-                        renderHistoryScreen();
-                        renderWeightScreen();
-                        
-                        alert('Data imported successfully!');
-                    }
-                } catch (error) {
-                    console.error('Error importing data:', error);
-                    alert('Error importing data. Please make sure the file is a valid Spark data export.');
-                }
-                
-                // Reset file input
-                fileInput.value = '';
-            };
-            
-            reader.readAsText(file);
-        });
-    }
-    
-    // Add CSS styles for new elements
-    function addAdditionalStyles() {
-        const styleElement = document.createElement('style');
-        styleElement.textContent = `
-            /* Date Selection Container */
-            .date-selection-container {
-                display: flex;
-                gap: 8px;
-                margin-bottom: 16px;
-                align-items: center;
-            }
-            
-            .date-input {
-                flex: 1;
-                padding: 12px;
-                border: 1px solid var(--light-gray);
-                border-radius: 8px;
-                font-size: 16px;
-            }
-            
-            .date-default-btn {
-                background-color: #f1f3f4;
-                border: none;
-                padding: 12px 16px;
-                border-radius: 8px;
-                cursor: pointer;
-                font-weight: 500;
-            }
-            
-            /* Awards Section */
-            .awards-section {
-                margin: 0 16px 80px 16px;
-            }
-            
-            .awards-list {
-                list-style: none;
-                padding: 0;
-            }
-            
-            .award-item {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 16px;
-                background-color: var(--card-background);
-                margin-bottom: 8px;
-                border-radius: var(--border-radius);
-                box-shadow: var(--card-shadow);
-            }
-            
-            .award-content {
-                display: flex;
-                flex-direction: column;
-            }
-            
-            .award-text {
-                font-weight: 500;
-            }
-            
-            .award-date {
-                font-size: 12px;
-                color: var(--text-secondary);
-                margin-top: 4px;
-            }
-            
-            .award-delete {
-                background: none;
-                border: none;
-                font-size: 18px;
-                cursor: pointer;
-                color: var(--danger-color);
-                padding: 4px 8px;
-            }
-            
-            /* Value Classes */
-            .success-value {
-                color: var(--secondary-color);
-                font-weight: 500;
-            }
-            
-            .danger-value {
-                color: var(--danger-color);
-                font-weight: 500;
-            }
-            
-            /* Secondary Button */
-            .secondary-btn {
-                background-color: var(--light-gray);
-                color: var(--text-color);
-                border: none;
-                padding: 12px 24px;
-                border-radius: 24px;
-                font-size: 14px;
-                font-weight: 500;
-                cursor: pointer;
-                margin: 8px;
-                display: inline-block;
-            }
-            
-            /* Delete Entry Button */
-            .delete-entry {
-                background: none;
-                border: none;
-                color: var(--danger-color);
-                cursor: pointer;
-                padding: 4px;
-                margin-left: 8px;
-                font-size: 16px;
-            }
-            
-            /* Export/Import Container */
-            .data-actions {
-                display: flex;
-                justify-content: center;
-                gap: 8px;
-                margin: 16px 0;
-            }
-        `;
-        
-        document.head.appendChild(styleElement);
-    }
-    
-    // Add delete buttons to history items
-    function addDeleteButtonsToHistory() {
-        // Add a delete button for each history item
-        function addDeleteButton(item, date) {
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete-entry';
-            deleteBtn.setAttribute('data-date', date);
-            deleteBtn.innerHTML = '&times;';
-            
-            const valueEl = item.querySelector('.default-value, .success-value');
-            valueEl.appendChild(deleteBtn);
-        }
-        
-        // Steps history
-        const stepsItems = stepsHistoryList.querySelectorAll('.history-item');
-        stepsItems.forEach(item => {
-            const dateEl = item.querySelector('.history-date');
-            if (dateEl) {
-                const date = new Date(dateEl.textContent).toISOString().split('T')[0];
-                addDeleteButton(item, date);
-            }
-        });
-        
-        // Weight history
-        const weightItems = weightHistoryList.querySelectorAll('.history-item');
-        weightItems.forEach(item => {
-            const dateEl = item.querySelector('.history-date');
-            if (dateEl) {
-                const date = new Date(dateEl.textContent).toISOString().split('T')[0];
-                addDeleteButton(item, date);
-            }
-        });
-    }
-    // Add clear history functionality
-function setupClearHistoryButton() {
-    const clearDataBtn = document.getElementById('clear-data-btn');
-    
-    clearDataBtn.addEventListener('click', () => {
-        showConfirmModal('Are you sure you want to clear all history data? This cannot be undone.', () => {
-            // Preserve current step goal and best streak
-            const stepGoal = appState.stepGoal;
-            const bestStreak = appState.bestStreak;
-            
-            // Reset app state
-            appState = {
-                todaySteps: 0,
-                stepGoal: stepGoal,
-                streakCount: 0, 
-                bestStreak: bestStreak,
-                lastUpdateDate: new Date().toISOString().split('T')[0],
-                stepsData: [],
-                weightData: [],
-                weightUnit: 'lbs',
-                weightGoal: null
-            };
-            
-            saveAppState();
-            
-            // Refresh all screens
-            renderHomeScreen();
-            renderHistoryScreen();
-            renderWeightScreen();
-            
-            showToast('History data cleared successfully');
-        });
-    });
-}
-
-// Helper function to show confirmation modal
-function showConfirmModal(message, confirmCallback) {
-    const confirmModal = document.getElementById('confirm-modal');
-    const confirmMessage = document.getElementById('confirm-message');
-    const confirmBtn = document.getElementById('confirm-btn');
-    const cancelBtn = document.getElementById('cancel-btn');
-    
-    confirmMessage.textContent = message;
-    
-    // Set up event handlers
-    const handleConfirm = () => {
-        confirmCallback();
-        hideAllModals();
-        // Remove event listeners
-        confirmBtn.removeEventListener('click', handleConfirm);
-        cancelBtn.removeEventListener('click', handleCancel);
-    };
-    
-    const handleCancel = () => {
-        hideAllModals();
-        // Remove event listeners
-        confirmBtn.removeEventListener('click', handleConfirm);
-        cancelBtn.removeEventListener('click', handleCancel);
-    };
-    
-    confirmBtn.addEventListener('click', handleConfirm);
-    cancelBtn.addEventListener('click', handleCancel);
-    
-    showModal(confirmModal);
-}
-
-// Helper function to show toast message
-function showToast(message, type = 'success') {
-    const toast = document.getElementById('toast-notification');
-    toast.textContent = message;
-    toast.className = 'toast';
-    toast.classList.add(type);
-    toast.classList.add('visible');
-    
-    setTimeout(() => {
-        toast.classList.remove('visible');
-    }, 3000);
-}
-    
-    // Setup extra features and modifications
-    function setupExtraFeatures() {
-        addAdditionalStyles();
-        addWeightGoalSetting();
-        addDeletionFunctionality();
-        setupClearHistoryButton();  // Add this line
-    }
-    
-    // Initialize the application
+    // Initialize the app
     initApp();
-    setupExtraFeatures();
+    setupClearHistoryButton();
 });

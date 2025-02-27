@@ -47,7 +47,7 @@
         <!-- History Screen -->
         <div class="screen hidden" id="history-screen">
             <header>
-                <h1>history</h1>
+                <h1 class="left-aligned">history</h1>
                 <!-- Time Filter Buttons -->
                 <div class="timeframe-toggle">
                     <button class="toggle-btn active" data-filter="week">Week</button>
@@ -68,19 +68,19 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="label">daily goal</div>
-                    <div class="value" id="history-goal">12,000 steps</div>
+                    <div class="blue-value" id="history-goal">10,000</div>
                 </div>
                 <div class="stat-card">
                     <div class="label">best streak 🔥</div>
-                    <div class="value" id="history-streak">0 days</div>
+                    <div class="blue-value" id="history-streak">0 days</div>
                 </div>
                 <div class="stat-card">
                     <div class="label">best day</div>
-                    <div class="value" id="best-day">0 steps</div>
+                    <div class="blue-value" id="best-day">0</div>
                 </div>
                 <div class="stat-card">
                     <div class="label">average day</div>
-                    <div class="value" id="average-day">0 steps</div>
+                    <div class="blue-value" id="average-day">0</div>
                 </div>
             </div>
             
@@ -100,18 +100,38 @@
         <!-- Weight Screen -->
         <div class="screen hidden" id="weight-screen">
             <header>
-                <h1>weight</h1>
+                <h1 class="left-aligned">weight</h1>
                 <button class="goal-btn" id="set-weight-goal-btn">Set Goal</button>
             </header>
             
             <div class="weight-current">
                 <span id="current-weight">--</span>
-                <span id="weight-unit">lbs</span>
+                <span id="weight-unit">lb</span>
             </div>
             
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label">weight goal</div>
+                    <div class="blue-value" id="weight-goal-value">Not set</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">progress</div>
+                    <div class="blue-value" id="weight-progress-value">0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">last change</div>
+                    <div class="green-value" id="weight-change-value">0 lb</div>
+                </div>
+            </div>
+            
+            <!-- Weight Chart Container -->
             <div class="chart-container">
                 <div class="chart-header">
                     <div class="chart-title">Weight Tracking</div>
+                    <div class="toggle-container">
+                        <input type="checkbox" id="show-goal-line" checked>
+                        <label for="show-goal-line">Goal Line</label>
+                    </div>
                 </div>
                 <canvas id="weight-chart"></canvas>
             </div>
@@ -164,11 +184,17 @@
                     <button class="close-btn">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <label for="steps-input">Steps:</label>
-                    <input type="number" id="steps-input" min="0" placeholder="Enter steps">
-                    
-                    <!-- Date selection will be added by JavaScript -->
-                    
+                    <div class="input-group">
+                        <label for="steps-input">Steps:</label>
+                        <input type="number" id="steps-input" min="0" placeholder="Enter steps">
+                    </div>
+                    <div class="input-group date-group">
+                        <label for="steps-date-input">Date:</label>
+                        <div class="date-input-container">
+                            <input type="date" id="steps-date-input" class="date-input">
+                            <button class="today-btn" id="steps-today-btn">Today</button>
+                        </div>
+                    </div>
                     <button class="primary-btn full-width" id="save-steps-btn">Save</button>
                 </div>
             </div>
@@ -180,17 +206,17 @@
                     <button class="close-btn">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <label for="weight-input">Weight:</label>
-                    <div class="weight-input-container">
+                    <div class="input-group">
+                        <label for="weight-input">Weight (lb):</label>
                         <input type="number" id="weight-input" min="0" step="0.1" placeholder="Enter weight">
-                        <select id="weight-unit-select">
-                            <option value="lbs">lbs</option>
-                            <option value="kg">kg</option>
-                        </select>
                     </div>
-                    
-                    <!-- Date selection will be added by JavaScript -->
-                    
+                    <div class="input-group date-group">
+                        <label for="weight-date-input">Date:</label>
+                        <div class="date-input-container">
+                            <input type="date" id="weight-date-input" class="date-input">
+                            <button class="today-btn" id="weight-today-btn">Today</button>
+                        </div>
+                    </div>
                     <button class="primary-btn full-width" id="save-weight-btn">Save</button>
                 </div>
             </div>
@@ -220,14 +246,8 @@
                     <button class="close-btn">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <label for="weight-goal-input">Target Weight:</label>
-                    <div class="weight-input-container">
-                        <input type="number" id="weight-goal-input" min="0" step="0.1" placeholder="Enter target weight">
-                        <select id="weight-goal-unit-select">
-                            <option value="lbs">lbs</option>
-                            <option value="kg">kg</option>
-                        </select>
-                    </div>
+                    <label for="weight-goal-input">Target Weight (lb):</label>
+                    <input type="number" id="weight-goal-input" min="0" step="0.1" placeholder="Enter target weight">
                     <button class="primary-btn full-width" id="save-weight-goal-btn">Save Goal</button>
                 </div>
             </div>

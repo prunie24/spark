@@ -49,26 +49,43 @@ header {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--light-gray);
+    position: relative;
 }
 
 header h1 {
     font-size: 20px;
     font-weight: 600;
     text-transform: lowercase;
+    margin: 0 auto;
+    text-align: center;
+    z-index: 0;
+}
+
+header h1.left-aligned {
+    margin: 0;
+    text-align: left;
 }
 
 .streak-container {
     display: flex;
     align-items: center;
     gap: 4px;
+    position: relative;
+    z-index: 1;
 }
 
 .flame-icon {
     font-size: 16px;
+    color: #FF9500;
 }
 
 .goal-settings {
     cursor: pointer;
+}
+
+.goal-btn {
+    position: relative;
+    z-index: 1;
 }
 
 /* Screen Layout */
@@ -130,8 +147,7 @@ header h1 {
     display: flex;
     justify-content: center;
     width: 100%;
-    gap: 8px;
-    margin-bottom: 16px;
+    margin: 16px 0;
 }
 
 /* Tab Navigation */
@@ -243,8 +259,8 @@ header h1 {
     background: var(--card-background, #fff);
     border-radius: var(--border-radius, 12px);
     box-shadow: var(--card-shadow, 0 2px 8px rgba(0, 0, 0, 0.05));
-    padding: 16px 16px 30px 16px; /* Even more bottom padding for x-axis labels */
-    height: 280px; /* Increased height to accommodate labels */
+    padding: 16px 16px 40px 16px; /* Increased bottom padding for x-axis labels */
+    height: 300px; /* Increased height for more space */
 }
 
 .chart-header {
@@ -260,21 +276,49 @@ header h1 {
     color: var(--text-secondary, #86868b);
 }
 
+/* Toggle container for goal line */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.toggle-container label {
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+.toggle-container input[type="checkbox"] {
+    margin-right: 5px;
+    cursor: pointer;
+}
+
 /* Stats Cards Grid - With proper spacing */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
     margin: 24px 16px; /* Added more top/bottom margin for spacing */
 }
 
+/* Specific grid for history page */
+#history-screen .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, auto);
+}
+
 .stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     background-color: var(--card-background, #fff);
     border-radius: var(--border-radius, 12px);
     box-shadow: var(--card-shadow, 0 2px 8px rgba(0, 0, 0, 0.05));
     padding: 14px;
-    text-align: center;
-    height: auto; /* Let content determine height */
 }
 
 .stat-card .label {
@@ -282,31 +326,36 @@ header h1 {
     color: var(--text-secondary, #86868b);
     margin-bottom: 8px;
     text-transform: lowercase;
+    text-align: center;
 }
 
-.stat-card .value {
+.stat-card .value,
+.stat-card .default-value,
+.stat-card .success-value,
+.stat-card .danger-value,
+.stat-card .blue-value {
     font-size: 18px;
     font-weight: 600;
-    color: var(--primary-color, #007AFF);
+    text-align: center;
 }
 
-.stat-card .success-value {
+/* Blue value for stats */
+.blue-value {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Green value for stats */
+.green-value {
     color: var(--secondary-color);
-    font-weight: 500;
-    font-size: 18px;
-}
-
-.stat-card .danger-value {
-    color: var(--danger-color);
-    font-weight: 500;
-    font-size: 18px;
+    font-weight: 600;
 }
 
 /* Timeframe Toggle */
 .timeframe-toggle {
     display: flex;
-    justify-content: center;
-    gap: 16px;
+    justify-content: flex-end;
+    gap: 8px;
 }
 
 .toggle-btn {
@@ -376,7 +425,7 @@ header h1 {
 /* Weight Screen */
 .weight-current {
     text-align: center;
-    margin: 20px 0;
+    margin: 16px;
     background-color: white;
     border-radius: 10px;
     padding: 20px;
@@ -458,30 +507,6 @@ input[type="number"]:focus {
     outline: none;
 }
 
-.weight-input-container {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-}
-
-.weight-input-container input {
-    flex: 1;
-    margin-bottom: 0;
-}
-
-select {
-    padding: 12px;
-    border: 1px solid var(--light-gray);
-    border-radius: 8px;
-    font-size: 16px;
-    background-color: white;
-}
-
-select:focus {
-    border-color: var(--primary-color);
-    outline: none;
-}
-
 .goal-presets {
     margin-bottom: 16px;
     display: flex;
@@ -497,12 +522,19 @@ select:focus {
     font-weight: 500;
 }
 
-/* Date Selection Container */
-.date-selection-container {
+/* Date Input Container Styling */
+.input-group {
+    margin-bottom: 16px;
+}
+
+.date-group {
+    margin-bottom: 20px;
+}
+
+.date-input-container {
     display: flex;
     gap: 8px;
-    margin-bottom: 16px;
-    align-items: center;
+    width: 100%;
 }
 
 .date-input {
@@ -513,58 +545,14 @@ select:focus {
     font-size: 16px;
 }
 
-.date-default-btn {
+.today-btn {
     background-color: #f1f3f4;
     border: none;
-    padding: 12px 16px;
+    padding: 0 12px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 500;
-}
-
-/* Awards Section */
-.awards-section {
-    margin: 0 16px 80px 16px;
-}
-
-.awards-list {
-    list-style: none;
-    padding: 0;
-}
-
-.award-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px;
-    background-color: var(--card-background);
-    margin-bottom: 8px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--card-shadow);
-}
-
-.award-content {
-    display: flex;
-    flex-direction: column;
-}
-
-.award-text {
-    font-weight: 500;
-}
-
-.award-date {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-top: 4px;
-}
-
-.award-delete {
-    background: none;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    color: var(--danger-color);
-    padding: 4px 8px;
+    white-space: nowrap;
 }
 
 /* Delete Entry Button */
@@ -582,17 +570,23 @@ select:focus {
 .data-actions {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    margin: 16px 0 80px 0;
-    flex-wrap: wrap;
+    gap: 12px;
+    margin: 24px 16px 80px 16px;
+}
+
+.data-actions .secondary-btn,
+.data-actions .clear-btn {
+    flex: 1;
+    max-width: 160px;
+    text-align: center;
+    margin: 0;
 }
 
 /* Make sure all elements are mobile friendly */
 @media (max-width: 480px) {
     .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
         gap: 8px;
-        margin: 20px 12px;
+        margin: 20px 16px;
     }
     
     .stat-card {
@@ -603,14 +597,19 @@ select:focus {
         font-size: 12px;
     }
     
-    .stat-card .value {
+    .stat-card .value,
+    .stat-card .blue-value,
+    .stat-card .green-value,
+    .stat-card .default-value,
+    .stat-card .success-value,
+    .stat-card .danger-value {
         font-size: 16px;
     }
     
     .chart-container {
         height: 280px;
-        margin: 12px;
-        padding: 12px 12px 30px 12px;
+        margin: 16px;
+        padding: 12px 12px 40px 12px;
     }
     
     .toggle-btn {
@@ -628,22 +627,23 @@ select:focus {
         font-size: 13px;
     }
     
-    .date-selection-container {
-        flex-direction: column;
-        align-items: flex-start;
+    /* Make date input container mobile-friendly */
+    .date-input-container {
+        flex-direction: row;
+        align-items: center;
     }
     
     .date-input {
-        width: 100%;
+        flex: 1;
     }
     
-    .date-default-btn {
-        align-self: flex-end;
+    .today-btn {
+        white-space: nowrap;
     }
 }
 
 /* Additional animations and enhancements */
-.primary-btn, .secondary-btn, .toggle-btn, .tab-item, .stat-card, .history-item, .award-item {
+.primary-btn, .secondary-btn, .toggle-btn, .tab-item, .stat-card, .history-item {
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -651,13 +651,21 @@ select:focus {
     transform: scale(0.98);
 }
 
-.history-item:hover, .award-item:hover {
+.history-item:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Weight Goal Setting */
 #set-weight-goal-btn {
-    margin-left: 8px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
 #weight-goal-input {
@@ -698,69 +706,51 @@ select:focus {
     background-color: transparent;
     color: var(--danger-color);
     border: 1px solid var(--danger-color);
-    padding: 8px 16px;
+    padding: 10px 20px;
     border-radius: 24px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    margin: 8px auto;
-    display: block;
+    transition: background-color 0.2s;
 }
 
 .clear-btn:hover {
     background-color: rgba(255, 59, 48, 0.1);
 }
 
-/* CSS for month and year labels on x-axis */
-.month-label {
-    font-weight: bold;
+/* Goal Button in Header */
+.goal-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 16px;
     font-size: 14px;
-    text-align: center;
-    margin-top: 8px;
-    color: var(--text-secondary);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-/* Updated styling for weight goal section */
-.weight-goal-info {
+.goal-btn:hover {
+    background-color: #0062cc;
+}
+
+/* Confirm Modal Buttons */
+#confirm-modal .button-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 16px;
-    padding: 16px;
-    background-color: var(--card-background);
-    border-radius: var(--border-radius);
-    box-shadow: var(--card-shadow);
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 20px;
 }
 
-.weight-goal-info .label {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 8px;
+#cancel-btn, #confirm-btn {
+    flex: 1;
+    max-width: 45%;
+    text-align: center;
+    padding: 12px 0;
 }
 
-.weight-goal-info .value {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--primary-color);
-}
-
-.weight-goal-progress {
-    width: 100%;
-    height: 8px;
-    background-color: var(--light-gray);
-    border-radius: 4px;
-    margin-top: 12px;
-    overflow: hidden;
-}
-
-.weight-goal-bar {
-    height: 100%;
-    background-color: var(--secondary-color);
-    border-radius: 4px;
-    transition: width 0.5s;
-}
-
-/* Calendar Picker Styling */
+/* Fix for date input on mobile */
 input[type="date"] {
     appearance: none;
     -webkit-appearance: none;
@@ -781,130 +771,9 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     opacity: 1;
 }
 
-/* Streaks display enhancement */
-.streak-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(255, 215, 0, 0.2);
-    color: var(--text-color);
-    font-weight: bold;
-    padding: 4px 10px;
-    border-radius: 16px;
-    margin-left: 8px;
-}
-
-.flame-icon {
-    color: #FF9500;
-    margin-right: 4px;
-}
-/* Goal Button in Header */
-.goal-btn {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.goal-btn:hover {
-    background-color: #0062cc;
-}
-
-/* Fire Emoji in Header */
-.flame-icon {
-    font-size: 18px;
-    color: #FF9500;
-    margin-left: 4px;
-}
-
-/* Updated Data Actions Section */
-.data-actions {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin: 24px 16px 80px 16px;
-}
-
-/* Clear Button Enhancement */
-.clear-btn {
-    background-color: transparent;
-    color: var(--danger-color);
-    border: 1px solid var(--danger-color);
-    padding: 10px 20px;
-    border-radius: 24px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.clear-btn:hover {
-    background-color: rgba(255, 59, 48, 0.1);
-}
-/* Add these styles */
-#set-weight-goal-btn {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 16px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    margin-left: auto;
-}
-
-.button-container {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    margin: 16px 0;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin: 24px 16px;
-    text-align: center;
-}
-
-.stat-card {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-/* Fix confirm modal buttons */
-#confirm-modal .button-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-#cancel-btn, #confirm-btn {
-    flex: 1;
-    padding: 12px;
-    text-align: center;
-}
-/* Add these styles for the confirm modal */
-#confirm-modal .button-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    margin-top: 20px;
-}
-
-#cancel-btn, #confirm-btn {
-    flex: 1;
-    text-align: center;
-    padding: 12px 0;
+/* Checkbox styling */
+input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
 }
