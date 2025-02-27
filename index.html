@@ -8,7 +8,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icons/favicon.png">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <meta name="theme-color" content="#4285f4">
+    <meta name="theme-color" content="#007AFF">
     <!-- Add Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 </head>
@@ -21,10 +21,8 @@
                     <span id="streak-count">0</span>
                     <span class="flame-icon">🔥</span>
                 </div>
-                <h1>Spark</h1>
-                <div class="goal-settings" id="goal-settings">
-                    <span class="goal-icon">🎯</span>
-                </div>
+                <h1>spark</h1>
+                <button class="goal-btn" id="goal-settings">Set Goal</button>
             </header>
             
             <div class="progress-container">
@@ -53,7 +51,7 @@
                 <!-- Time Filter Buttons -->
                 <div class="timeframe-toggle">
                     <button class="toggle-btn active" data-filter="week">Week</button>
-                    <button class="toggle-btn" data-filter="month">Month</button>
+                    <button class="toggle-btn" data-filter="month">3 Months</button>
                     <button class="toggle-btn" data-filter="year">Year</button>
                 </div>
             </header>
@@ -61,7 +59,7 @@
             <!-- Chart Container -->
             <div class="chart-container">
                 <div class="chart-header">
-                    <div class="chart-title" id="chart-title">Average Daily Steps</div>
+                    <div class="chart-title" id="chart-title">Daily Steps</div>
                 </div>
                 <canvas id="history-chart"></canvas>
             </div>
@@ -91,6 +89,12 @@
             <div class="history-list" id="steps-history-list">
                 <!-- Dynamic step history entries will be inserted here -->
             </div>
+            
+            <!-- Data Import/Export Actions -->
+            <div class="data-actions">
+                <button class="secondary-btn" id="import-data-btn">Import Data</button>
+                <button class="clear-btn" id="clear-data-btn">Clear History</button>
+            </div>
         </div>
         
         <!-- Weight Screen -->
@@ -105,11 +109,15 @@
             </div>
             
             <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Weight Tracking</div>
+                </div>
                 <canvas id="weight-chart"></canvas>
             </div>
             
             <div class="button-container">
                 <button class="primary-btn" id="add-weight-btn">Add Weight</button>
+                <button class="secondary-btn" id="set-weight-goal-btn">Set Goal</button>
             </div>
             
             <div class="history-list-header">Weight History</div>
@@ -156,8 +164,11 @@
                     <button class="close-btn">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <label for="steps-input">Steps for today:</label>
+                    <label for="steps-input">Steps:</label>
                     <input type="number" id="steps-input" min="0" placeholder="Enter steps">
+                    
+                    <!-- Date selection will be added by JavaScript -->
+                    
                     <button class="primary-btn full-width" id="save-steps-btn">Save</button>
                 </div>
             </div>
@@ -169,7 +180,7 @@
                     <button class="close-btn">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <label for="weight-input">Current weight:</label>
+                    <label for="weight-input">Weight:</label>
                     <div class="weight-input-container">
                         <input type="number" id="weight-input" min="0" step="0.1" placeholder="Enter weight">
                         <select id="weight-unit-select">
@@ -177,6 +188,9 @@
                             <option value="kg">kg</option>
                         </select>
                     </div>
+                    
+                    <!-- Date selection will be added by JavaScript -->
+                    
                     <button class="primary-btn full-width" id="save-weight-btn">Save</button>
                 </div>
             </div>
@@ -198,7 +212,44 @@
                     <button class="primary-btn full-width" id="save-goal-btn">Save</button>
                 </div>
             </div>
+            
+            <!-- Weight Goal Modal -->
+            <div class="modal hidden" id="weight-goal-modal">
+                <div class="modal-header">
+                    <h2>Set Weight Goal</h2>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <label for="weight-goal-input">Target Weight:</label>
+                    <div class="weight-input-container">
+                        <input type="number" id="weight-goal-input" min="0" step="0.1" placeholder="Enter target weight">
+                        <select id="weight-goal-unit-select">
+                            <option value="lbs">lbs</option>
+                            <option value="kg">kg</option>
+                        </select>
+                    </div>
+                    <button class="primary-btn full-width" id="save-weight-goal-btn">Save Goal</button>
+                </div>
+            </div>
+            
+            <!-- Confirmation Modal -->
+            <div class="modal hidden" id="confirm-modal">
+                <div class="modal-header">
+                    <h2>Confirm Action</h2>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="confirm-message">Are you sure you want to continue?</p>
+                    <div class="button-container">
+                        <button class="secondary-btn" id="cancel-btn">Cancel</button>
+                        <button class="primary-btn" id="confirm-btn">Confirm</button>
+                    </div>
+                </div>
+            </div>
         </div>
+        
+        <!-- Toast Notification -->
+        <div class="toast" id="toast-notification"></div>
     </div>
     
     <script src="app.js"></script>
